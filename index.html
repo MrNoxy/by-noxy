@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nas Mare BGD — Noxy</title>
+<meta name="description" content='The new release from Noxy. "Nas Mare BGD" arrives July 27, 2026. Pre-save now.' />
+
+<!-- Canonical / social preview URL — REPLACE with your real live domain once deployed -->
+<link rel="canonical" href="https://nasmarebgd.noxy.com/" />
+
+<!-- Open Graph (Discord, Facebook, iMessage, WhatsApp, LinkedIn, etc.) -->
+<meta property="og:title" content="Nas Mare BGD — Noxy" />
+<meta property="og:description" content="A new release from Noxy, arriving July 27, 2026. Pre-save now." />
+<meta property="og:type" content="music.song" />
+<meta property="og:url" content="https://by-noxy.com" />
+<meta property="og:site_name" content="Noxy" />
+<meta property="og:image" content="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Nas Mare BGD — Noxy, releasing July 27, 2026" />
+<meta property="music:release_date" content="2026-07-27" />
+<meta property="music:musician" content="Noxy" />
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Nas Mare BGD — Noxy" />
+<meta name="twitter:description" content="A new release from Noxy, arriving July 27, 2026. Pre-save now." />
+<meta name="twitter:image" content="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg" />
+
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#000000" />
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          background: 'rgb(var(--background) / <alpha-value>)',
+          foreground: 'rgb(var(--foreground) / <alpha-value>)',
+          card: 'rgb(var(--card) / <alpha-value>)',
+          border: 'rgb(var(--border) / <alpha-value>)',
+          'muted-foreground': 'rgb(var(--muted-foreground) / <alpha-value>)',
+          primary: 'rgb(var(--primary) / <alpha-value>)',
+          'primary-foreground': 'rgb(var(--primary-foreground) / <alpha-value>)',
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+
+<!-- Inter font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Lucide icons (for play/pause/volume/check/arrow icons) -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  :root {
+    color-scheme: dark;
+    /* colors expressed as r g b for tailwind alpha support, derived from the oklch dark theme */
+    --background: 15 15 15;      /* oklch(0.06 0 0) approx */
+    --foreground: 250 250 250;   /* oklch(0.98 0 0) approx */
+    --card: 28 28 28;            /* oklch(0.11 0 0) approx */
+    --border: 255 255 255;       /* used with low alpha for oklch(1 0 0 / 8%) */
+    --muted-foreground: 158 158 158; /* oklch(0.62 0 0) approx */
+    --primary: 250 250 250;
+    --primary-foreground: 23 23 23;
+  }
+
+  * {
+    border-color: rgb(var(--border) / 0.08);
+  }
+
+  html, body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .border-border { border-color: rgb(var(--border) / 0.08); }
+  .bg-card\/40 { background-color: rgb(var(--card) / 0.4); }
+  .bg-card { background-color: rgb(var(--card)); }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in-up {
+    opacity: 0;
+    animation: fade-in-up 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .animate-fade-in {
+    opacity: 0;
+    animation: fade-in 1.4s ease forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up, .animate-fade-in {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+
+  /* Atmospheric glows */
+  .glow-top {
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.08), transparent 70%);
+  }
+  .glow-bottom {
+    background: radial-gradient(ellipse at center, rgba(120,140,180,0.06), transparent 70%);
+  }
+</style>
+</head>
+
+<body class="bg-background font-sans antialiased">
+
+<main class="relative min-h-dvh overflow-hidden bg-background">
+  <!-- Atmospheric glow -->
+  <div aria-hidden="true" class="glow-top pointer-events-none absolute left-1/2 top-[-10%] h-[60vh] w-[80vw] -translate-x-1/2 rounded-full blur-3xl"></div>
+  <div aria-hidden="true" class="glow-bottom pointer-events-none absolute bottom-[-20%] left-1/2 h-[50vh] w-[70vw] -translate-x-1/2 rounded-full blur-3xl"></div>
+
+  <div class="relative z-10 mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center gap-16 px-6 py-20 sm:gap-20">
+
+    <!-- Header -->
+    <header class="flex flex-col items-center text-center">
+      <p class="animate-fade-in text-xs font-medium uppercase tracking-[0.4em] text-muted-foreground" style="animation-delay:100ms;">
+        by Noxy
+      </p>
+      <h1 class="animate-fade-in-up mt-6 text-balance text-5xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl" style="animation-delay:200ms;">
+        Nas Mare BGD
+      </h1>
+      <p class="animate-fade-in mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground" style="animation-delay:500ms;">
+        A new release - July 27, 2026. Sound emerging from the dark.
+      </p>
+    </header>
+
+    <!-- Countdown -->
+    <section aria-label="Release countdown" class="animate-fade-in-up w-full" style="animation-delay:600ms;">
+      <div id="countdown" class="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" role="timer" aria-label="Countdown to release">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- Video teaser -->
+    <section aria-label="Teaser video" class="animate-fade-in-up w-full" style="animation-delay:750ms;">
+      <div class="group relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/60">
+        <video
+          id="teaser-video"
+          class="h-full w-full object-cover cursor-pointer"
+          poster="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg"
+          unmuted\
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/2uyohh.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Center play button (before playback) -->
+        <button
+          id="center-play-btn"
+          type="button"
+          aria-label="Play teaser"
+          class="absolute inset-0 flex items-center justify-center bg-black/40 transition-colors hover:bg-black/30"
+        >
+          <span class="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md transition-transform duration-300 hover:scale-105 sm:h-20 sm:w-20">
+            <i data-lucide="play" class="ml-1 h-7 w-7 text-foreground sm:h-8 sm:w-8" style="fill: currentColor;"></i>
+          </span>
+        </button>
+
+        <!-- Bottom control bar -->
+        <div id="control-bar" class="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-3 pt-10 transition-opacity duration-300 sm:px-5 opacity-0">
+          <!-- Progress bar -->
+          <div id="progress-track" class="group/bar relative h-1 w-full cursor-pointer rounded-full bg-white/15" role="progressbar" aria-label="Playback progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div id="progress-fill" class="absolute inset-y-0 left-0 rounded-full bg-foreground" style="width: 0%;"></div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex items-center gap-4">
+            <button type="button" id="play-btn" aria-label="Play" class="text-foreground/90 transition-colors hover:text-foreground">
+              <i data-lucide="play" class="h-5 w-5" style="fill: currentColor;"></i>
+            </button>
+            <button type="button" id="mute-btn" aria-label="Unmute" class="text-foreground/90 transition-colors hover:text-foreground">
+              <i data-lucide="volume-x" class="h-5 w-5"></i>
+            </button>
+            <span class="ml-auto text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
+              Official Teaser
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to action -->
+    <section aria-label="Pre-save" class="animate-fade-in-up w-full max-w-md" style="animation-delay:900ms;">
+      <p class="mb-4 text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
+        Be the first to hear it
+      </p>
+
+      <form id="presave-form" class="flex w-full flex-col gap-3 sm:flex-row">
+        <label for="presave-email" class="sr-only">Email address</label>
+        <input
+          id="presave-email"
+          type="email"
+          required
+          placeholder="Enter your email"
+          class="h-12 flex-1 rounded-full border border-border bg-card/40 px-5 text-sm text-foreground placeholder:text-muted-foreground backdrop-blur-sm transition-colors focus:border-foreground/40 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
+        >
+          Pre-save
+          <i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5"></i>
+        </button>
+      </form>
+
+      <div id="presave-success" class="hidden items-center justify-center gap-2 rounded-full border border-border bg-card/40 px-6 py-3.5 text-sm text-muted-foreground backdrop-blur-sm">
+        <i data-lucide="check" class="h-4 w-4 text-foreground"></i>
+        <span>You're on the list. We'll notify you on release.</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="animate-fade-in text-center text-xs tracking-[0.2em] text-muted-foreground" style="animation-delay:1100ms;">
+      &copy; 2026 Noxy. All rights reserved.
+    </footer>
+  </div>
+</main>
+
+<script>
+  // ---------- Countdown timer ----------
+  const TARGET = new Date('2026-07-27T00:00:00Z').getTime();
+  const UNITS = [
+    { key: 'days', label: 'Days' },
+    { key: 'hours', label: 'Hours' },
+    { key: 'minutes', label: 'Minutes' },
+    { key: 'seconds', label: 'Seconds' },
+  ];
+
+  function getTimeLeft() {
+    const diff = Math.max(0, TARGET - Date.now());
+    return {
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    };
+  }
+
+  function renderCountdown() {
+    const time = getTimeLeft();
+    const container = document.getElementById('countdown');
+    container.innerHTML = UNITS.map(({ key, label }) => `
+      <div class="flex flex-col items-center rounded-xl border border-border bg-card/40 px-4 py-5 backdrop-blur-sm sm:px-6 sm:py-7">
+        <span class="font-sans text-4xl font-semibold tabular-nums tracking-tight text-foreground sm:text-5xl md:text-6xl">
+          ${String(time[key]).padStart(2, '0')}
+        </span>
+        <span class="mt-2 text-[0.65rem] font-medium uppercase tracking-[0.25em] text-muted-foreground sm:text-xs">
+          ${label}
+        </span>
+      </div>
+    `).join('');
+  }
+
+  renderCountdown();
+  setInterval(renderCountdown, 1000);
+
+  // ---------- Video player ----------
+  const video = document.getElementById('teaser-video');
+  const centerPlayBtn = document.getElementById('center-play-btn');
+  const controlBar = document.getElementById('control-bar');
+  const playBtn = document.getElementById('play-btn');
+  const muteBtn = document.getElementById('mute-btn');
+  const progressTrack = document.getElementById('progress-track');
+  const progressFill = document.getElementById('progress-fill');
+
+  let started = false;
+  let isMuted = true;
+
+  function updatePlayIcon(playing) {
+    const iconName = playing ? 'pause' : 'play';
+    playBtn.innerHTML = `<i data-lucide="${iconName}" class="h-5 w-5" style="fill: currentColor;"></i>`;
+    lucide.createIcons();
+  }
+
+  function updateMuteIcon(muted) {
+    const iconName = muted ? 'volume-x' : 'volume-2';
+    muteBtn.innerHTML = `<i data-lucide="${iconName}" class="h-5 w-5"></i>`;
+    lucide.createIcons();
+  }
+
+  function togglePlay() {
+    if (video.paused) {
+      video.play();
+      started = true;
+      centerPlayBtn.classList.add('hidden');
+      controlBar.classList.remove('opacity-0');
+      controlBar.classList.add('opacity-100');
+      updatePlayIcon(true);
+    } else {
+      video.pause();
+      updatePlayIcon(false);
+    }
+  }
+
+  function toggleMute() {
+    video.muted = !video.muted;
+    isMuted = video.muted;
+    updateMuteIcon(isMuted);
+  }
+
+  centerPlayBtn.addEventListener('click', togglePlay);
+  playBtn.addEventListener('click', togglePlay);
+  video.addEventListener('click', togglePlay);
+  muteBtn.addEventListener('click', toggleMute);
+
+  video.addEventListener('timeupdate', () => {
+    if (!video.duration) return;
+    const progress = (video.currentTime / video.duration) * 100;
+    progressFill.style.width = progress + '%';
+    progressTrack.setAttribute('aria-valuenow', Math.round(progress));
+  });
+
+  video.addEventListener('ended', () => updatePlayIcon(false));
+
+  progressTrack.addEventListener('click', (e) => {
+    if (!video.duration) return;
+    const rect = progressTrack.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    video.currentTime = ratio * video.duration;
+    progressFill.style.width = (ratio * 100) + '%';
+  });
+
+  // ---------- Pre-save form ----------
+  const presaveForm = document.getElementById('presave-form');
+  const presaveSuccess = document.getElementById('presave-success');
+
+  presaveForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('presave-email').value;
+    if (!email) return;
+    // In a real build this would post to a mailing-list endpoint.
+    presaveForm.classList.add('hidden');
+    presaveSuccess.classList.remove('hidden');
+    presaveSuccess.classList.add('flex');
+    lucide.createIcons();
+  });
+
+  // ---------- Init icons ----------
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
