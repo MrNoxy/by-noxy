@@ -1,0 +1,12 @@
+{
+  "targetDateUTC": "2026-07-26T21:00:00.000Z",
+  "releaseUrl": "",
+  "teasers": [
+    {
+      "id": "teaser-1",
+      "videoUrl": "https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/2uyohh.mp4",
+      "posterUrl": "https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg",
+      "createdAt": "2026-07-23T10:00:00.000Z"
+    }
+  ]
+}
