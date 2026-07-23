@@ -123,12 +123,103 @@
   .glow-bottom {
     background: radial-gradient(ellipse at center, rgba(120,140,180,0.06), transparent 70%);
   }
+
+  /* Teaser carousel arrows */
+  .teaser-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgb(var(--border) / 0.12);
+    color: rgb(var(--foreground));
+    backdrop-filter: blur(6px);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    opacity: 0;
+  }
+  .group:hover .teaser-arrow {
+    opacity: 1;
+  }
+  .teaser-arrow:hover {
+    background: rgba(0,0,0,0.65);
+  }
+  .teaser-arrow:active {
+    transform: translateY(-50%) scale(0.94);
+  }
+  .teaser-dots {
+    position: absolute;
+    bottom: 0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 0.4rem;
+  }
+  .teaser-dot {
+    height: 5px;
+    width: 5px;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.35);
+    transition: background-color 0.2s ease, width 0.2s ease;
+  }
+  .teaser-dot.active {
+    background: rgba(255,255,255,0.95);
+    width: 16px;
+  }
+
+  /* Release overlay */
+  #release-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.1s ease;
+  }
+  #release-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #release-video {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  #release-video.is-visible {
+    opacity: 1;
+  }
+  #tap-to-play {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+  }
+  #app-root {
+    transition: opacity 0.8s ease;
+  }
 </style>
 </head>
 
 <body class="bg-background font-sans antialiased">
 
-<main class="relative min-h-dvh overflow-hidden bg-background">
+<main id="app-root" class="relative min-h-dvh overflow-hidden bg-background">
   <!-- Atmospheric glow -->
   <div aria-hidden="true" class="glow-top pointer-events-none absolute left-1/2 top-[-10%] h-[60vh] w-[80vw] -translate-x-1/2 rounded-full blur-3xl"></div>
   <div aria-hidden="true" class="glow-bottom pointer-events-none absolute bottom-[-20%] left-1/2 h-[50vh] w-[70vw] -translate-x-1/2 rounded-full blur-3xl"></div>
@@ -143,13 +234,13 @@
       <h1 class="animate-fade-in-up mt-6 text-balance text-5xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl" style="animation-delay:200ms;">
         Nas Mare BGD
       </h1>
-      <p class="animate-fade-in mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground" style="animation-delay:500ms;">
+      <p id="header-sub" class="animate-fade-in mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground" style="animation-delay:500ms;">
         A new release - July 27, 2026. Sound emerging from the dark.
       </p>
     </header>
 
     <!-- Countdown -->
-    <section aria-label="Release countdown" class="animate-fade-in-up w-full" style="animation-delay:600ms;">
+    <section id="countdown-section" aria-label="Release countdown" class="animate-fade-in-up w-full" style="animation-delay:600ms;">
       <div id="countdown" class="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" role="timer" aria-label="Countdown to release">
         <!-- Filled by JS -->
       </div>
@@ -157,17 +248,25 @@
 
     <!-- Video teaser -->
     <section aria-label="Teaser video" class="animate-fade-in-up w-full" style="animation-delay:750ms;">
-      <div class="group relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/60">
+      <div id="teaser-wrap" class="group relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/60">
         <video
           id="teaser-video"
           class="h-full w-full object-cover cursor-pointer"
           poster="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg"
-          unmuted\
           playsinline
           preload="metadata"
         >
-          <source src="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/2uyohh.mp4" type="video/mp4" />
+          <source id="teaser-source" src="https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/2uyohh.mp4" type="video/mp4" />
         </video>
+
+        <!-- Prev / next arrows, only shown when there are 2+ teasers -->
+        <button id="teaser-prev" type="button" aria-label="Previous teaser" class="teaser-arrow" style="left:0.6rem;">
+          <i data-lucide="chevron-left" class="h-5 w-5"></i>
+        </button>
+        <button id="teaser-next" type="button" aria-label="Next teaser" class="teaser-arrow" style="right:0.6rem;">
+          <i data-lucide="chevron-right" class="h-5 w-5"></i>
+        </button>
+        <div id="teaser-dots" class="teaser-dots"></div>
 
         <!-- Center play button (before playback) -->
         <button
@@ -241,9 +340,118 @@
   </div>
 </main>
 
+<!-- Release overlay: blackout -> fullscreen autoplay of the final release -->
+<div id="release-overlay" aria-hidden="true">
+  <video id="release-video" playsinline preload="auto"></video>
+  <div id="tap-to-play">
+    <span class="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
+      <i data-lucide="volume-2" class="h-7 w-7"></i>
+    </span>
+    <p class="text-sm uppercase tracking-[0.3em] text-white/80">Tap for sound</p>
+  </div>
+</div>
+
 <script>
-  // ---------- Countdown timer ----------
-  const TARGET = new Date('2026-07-27T00:00:00Z').getTime();
+  // ---------- Fallback config (used only if config.json can't be fetched) ----------
+  const DEFAULT_CONFIG = {
+    targetDateUTC: '2026-07-26T21:00:00.000Z', // 2026-07-27 00:00 Europe/Bucharest (EEST, UTC+3)
+    releaseUrl: '',
+    teasers: [
+      {
+        id: 'teaser-1',
+        videoUrl: 'https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/2uyohh.mp4',
+        posterUrl: 'https://images.guns.lol/833fa64160898cf1c256407d95f21d8f4f1fae95/iTIDle.jpeg',
+        createdAt: '2026-07-23T10:00:00.000Z',
+      },
+    ],
+  };
+
+  let CONFIG = null;
+  let teasers = [];
+  let teaserIndex = 0;
+  let countdownTimer = null;
+  let released = false;
+
+  // ---------- Load config (or a forced test payload) ----------
+  async function loadConfig() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get('test') === 'release') {
+      // Admin "Test release" mode: read a one-off payload the admin page stashed in localStorage.
+      try {
+        const raw = localStorage.getItem('noxy_test_config');
+        if (raw) return JSON.parse(raw);
+      } catch (e) { /* fall through to defaults */ }
+    }
+
+    try {
+      const res = await fetch('config.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('config fetch failed');
+      const data = await res.json();
+      if (!data.teasers || !data.teasers.length) data.teasers = DEFAULT_CONFIG.teasers;
+      return data;
+    } catch (e) {
+      return DEFAULT_CONFIG;
+    }
+  }
+
+  // ---------- Teaser carousel ----------
+  function setupTeasers() {
+    teasers = [...CONFIG.teasers].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    teaserIndex = 0;
+
+    const prevBtn = document.getElementById('teaser-prev');
+    const nextBtn = document.getElementById('teaser-next');
+    const dotsWrap = document.getElementById('teaser-dots');
+
+    if (teasers.length > 1) {
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+      dotsWrap.innerHTML = teasers.map((_, i) =>
+        `<span class="teaser-dot${i === 0 ? ' active' : ''}"></span>`
+      ).join('');
+    } else {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      dotsWrap.innerHTML = '';
+    }
+
+    renderTeaser(0);
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      renderTeaser((teaserIndex - 1 + teasers.length) % teasers.length);
+    });
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      renderTeaser((teaserIndex + 1) % teasers.length);
+    });
+  }
+
+  function renderTeaser(index) {
+    teaserIndex = index;
+    const t = teasers[teaserIndex];
+    const video = document.getElementById('teaser-video');
+    const source = document.getElementById('teaser-source');
+
+    video.pause();
+    video.poster = t.posterUrl || '';
+    source.src = t.videoUrl;
+    video.load();
+    updatePlayIcon(false);
+    document.getElementById('center-play-btn').classList.remove('hidden');
+    const bar = document.getElementById('control-bar');
+    bar.classList.remove('opacity-100');
+    bar.classList.add('opacity-0');
+
+    document.querySelectorAll('.teaser-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === teaserIndex);
+    });
+  }
+
+  // ---------- Countdown ----------
   const UNITS = [
     { key: 'days', label: 'Days' },
     { key: 'hours', label: 'Hours' },
@@ -251,8 +459,8 @@
     { key: 'seconds', label: 'Seconds' },
   ];
 
-  function getTimeLeft() {
-    const diff = Math.max(0, TARGET - Date.now());
+  function getTimeLeft(targetMs) {
+    const diff = Math.max(0, targetMs - Date.now());
     return {
       days: Math.floor(diff / (1000 * 60 * 60 * 24)),
       hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
@@ -261,8 +469,8 @@
     };
   }
 
-  function renderCountdown() {
-    const time = getTimeLeft();
+  function renderCountdown(targetMs) {
+    const time = getTimeLeft(targetMs);
     const container = document.getElementById('countdown');
     container.innerHTML = UNITS.map(({ key, label }) => `
       <div class="flex flex-col items-center rounded-xl border border-border bg-card/40 px-4 py-5 backdrop-blur-sm sm:px-6 sm:py-7">
@@ -274,12 +482,62 @@
         </span>
       </div>
     `).join('');
+
+    if (targetMs - Date.now() <= 0 && !released) {
+      clearInterval(countdownTimer);
+      startReleaseSequence();
+    }
   }
 
-  renderCountdown();
-  setInterval(renderCountdown, 1000);
+  // ---------- Release sequence: blackout -> fullscreen autoplay ----------
+  function startReleaseSequence() {
+    released = true;
+    const releaseUrl = CONFIG.releaseUrl;
+    const overlay = document.getElementById('release-overlay');
+    const appRoot = document.getElementById('app-root');
+    const relVideo = document.getElementById('release-video');
+    const tapToPlay = document.getElementById('tap-to-play');
 
-  // ---------- Video player ----------
+    if (!releaseUrl) {
+      // Nothing set yet — just show a simple "released" message instead of breaking.
+      document.getElementById('header-sub').textContent = "It's out. Release link hasn't been set yet — check back shortly.";
+      document.getElementById('countdown-section').style.display = 'none';
+      return;
+    }
+
+    appRoot.style.opacity = '0';
+    overlay.classList.add('is-visible');
+
+    setTimeout(() => {
+      appRoot.style.display = 'none';
+      relVideo.src = releaseUrl;
+      relVideo.muted = false;
+      relVideo.classList.add('is-visible');
+
+      const goFullscreen = () => {
+        const req = relVideo.requestFullscreen || relVideo.webkitRequestFullscreen || relVideo.webkitEnterFullscreen;
+        if (req) { try { req.call(relVideo); } catch (e) {} }
+      };
+
+      relVideo.play().then(() => {
+        goFullscreen();
+      }).catch(() => {
+        // Autoplay with sound was blocked by the browser — fall back to a muted
+        // autoplay and ask for one tap to unmute + go fullscreen with sound.
+        relVideo.muted = true;
+        relVideo.play().catch(() => {});
+        tapToPlay.style.display = 'flex';
+        tapToPlay.addEventListener('click', () => {
+          relVideo.muted = false;
+          relVideo.play();
+          goFullscreen();
+          tapToPlay.style.display = 'none';
+        }, { once: true });
+      });
+    }, 1400);
+  }
+
+  // ---------- Teaser video player controls (mirrors original behaviour) ----------
   const video = document.getElementById('teaser-video');
   const centerPlayBtn = document.getElementById('center-play-btn');
   const controlBar = document.getElementById('control-bar');
@@ -287,9 +545,6 @@
   const muteBtn = document.getElementById('mute-btn');
   const progressTrack = document.getElementById('progress-track');
   const progressFill = document.getElementById('progress-fill');
-
-  let started = false;
-  let isMuted = true;
 
   function updatePlayIcon(playing) {
     const iconName = playing ? 'pause' : 'play';
@@ -306,7 +561,6 @@
   function togglePlay() {
     if (video.paused) {
       video.play();
-      started = true;
       centerPlayBtn.classList.add('hidden');
       controlBar.classList.remove('opacity-0');
       controlBar.classList.add('opacity-100');
@@ -319,8 +573,7 @@
 
   function toggleMute() {
     video.muted = !video.muted;
-    isMuted = video.muted;
-    updateMuteIcon(isMuted);
+    updateMuteIcon(video.muted);
   }
 
   centerPlayBtn.addEventListener('click', togglePlay);
@@ -360,8 +613,25 @@
     lucide.createIcons();
   });
 
-  // ---------- Init icons ----------
-  lucide.createIcons();
+  // ---------- Init ----------
+  (async function init() {
+    CONFIG = await loadConfig();
+    setupTeasers();
+
+    const params = new URLSearchParams(window.location.search);
+    const forceRelease = params.get('test') === 'release';
+    const targetMs = new Date(CONFIG.targetDateUTC).getTime();
+
+    if (forceRelease || Date.now() >= targetMs) {
+      document.getElementById('countdown-section').style.display = 'none';
+      startReleaseSequence();
+    } else {
+      renderCountdown(targetMs);
+      countdownTimer = setInterval(() => renderCountdown(targetMs), 1000);
+    }
+
+    lucide.createIcons();
+  })();
 </script>
 
 </body>
