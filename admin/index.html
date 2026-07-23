@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Nas Mare BGD</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#000000" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          background: 'rgb(var(--background) / <alpha-value>)',
+          foreground: 'rgb(var(--foreground) / <alpha-value>)',
+          card: 'rgb(var(--card) / <alpha-value>)',
+          border: 'rgb(var(--border) / <alpha-value>)',
+          'muted-foreground': 'rgb(var(--muted-foreground) / <alpha-value>)',
+          primary: 'rgb(var(--primary) / <alpha-value>)',
+          'primary-foreground': 'rgb(var(--primary-foreground) / <alpha-value>)',
+        },
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      },
+    },
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  :root {
+    color-scheme: dark;
+    --background: 15 15 15;
+    --foreground: 250 250 250;
+    --card: 28 28 28;
+    --border: 255 255 255;
+    --muted-foreground: 158 158 158;
+    --primary: 250 250 250;
+    --primary-foreground: 23 23 23;
+  }
+  * { border-color: rgb(var(--border) / 0.08); }
+  html, body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .field-input, .field-select {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--border) / 0.12);
+    background: rgb(var(--card) / 0.5);
+    padding: 0.6rem 0.9rem;
+    font-size: 0.875rem;
+    color: rgb(var(--foreground));
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field-input:focus, .field-select:focus { border-color: rgb(var(--foreground) / 0.4); }
+  .field-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgb(var(--muted-foreground));
+    margin-bottom: 0.4rem;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    border-radius: 9999px; background: rgb(var(--primary)); color: rgb(var(--primary-foreground));
+    font-size: 0.875rem; font-weight: 500; padding: 0.65rem 1.4rem;
+    transition: transform 0.15s ease; cursor: pointer; border: none;
+  }
+  .btn-primary:hover { transform: scale(1.02); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    border-radius: 9999px; border: 1px solid rgb(var(--border) / 0.16); background: transparent;
+    color: rgb(var(--foreground)); font-size: 0.875rem; font-weight: 500; padding: 0.6rem 1.3rem;
+    cursor: pointer; transition: background-color 0.15s ease;
+  }
+  .btn-secondary:hover { background: rgb(var(--card) / 0.6); }
+  .btn-danger {
+    color: rgb(240 120 120); font-size: 0.75rem; font-weight: 500; cursor: pointer; background: none; border: none;
+  }
+  .btn-danger:hover { text-decoration: underline; }
+  .card {
+    border: 1px solid rgb(var(--border) / 0.08);
+    background: rgb(var(--card) / 0.4);
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 9999px;
+    padding: 0.25rem 0.75rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+</style>
+</head>
+
+<body class="bg-background font-sans antialiased">
+
+<!-- ================= LOGIN GATE ================= -->
+<div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-background px-6">
+  <form id="login-form" class="card w-full max-w-sm">
+    <p class="text-xs uppercase tracking-[0.3em] text-muted-foreground text-center">Noxy</p>
+    <h1 class="mt-3 text-center text-2xl font-semibold tracking-tight">Admin access</h1>
+    <p class="mt-2 text-center text-sm text-muted-foreground">Enter the password to manage the release page.</p>
+    <input id="login-password" type="password" placeholder="Password" class="field-input mt-6" autocomplete="current-password" />
+    <p id="login-error" class="mt-2 hidden text-center text-xs text-red-400">Wrong password — try again.</p>
+    <button type="submit" class="btn-primary mt-4 w-full">Log in</button>
+    <p class="mt-4 text-center text-[0.65rem] leading-relaxed text-muted-foreground">
+      This is a client-side password meant to keep casual visitors out — anyone who reads the page source can find it. Don't reuse a real password here.
+    </p>
+  </form>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="dashboard" class="relative z-10 mx-auto hidden min-h-dvh max-w-3xl flex-col gap-8 px-6 py-14 sm:gap-10">
+  <header class="flex items-center justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-muted-foreground">Noxy · Admin</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Nas Mare BGD</h1>
+    </div>
+    <a href="../" class="btn-secondary">View site</a>
+  </header>
+
+  <!-- GitHub connection -->
+  <section class="card">
+    <h2 class="text-sm font-medium">Repository connection</h2>
+    <p class="mt-1 text-xs text-muted-foreground">
+      Changes you make below are saved by committing <code class="text-foreground">config.json</code> straight to your GitHub Pages repo, so every visitor sees them. You'll need a GitHub personal access token with write access to the repo's contents — it's only kept in this browser, never uploaded anywhere else.
+    </p>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="field-label">Repo owner</label>
+        <input id="gh-owner" class="field-input" placeholder="e.g. noxy-music" />
+      </div>
+      <div>
+        <label class="field-label">Repo name</label>
+        <input id="gh-repo" class="field-input" placeholder="e.g. nasmarebgd" />
+      </div>
+      <div>
+        <label class="field-label">Branch</label>
+        <input id="gh-branch" class="field-input" placeholder="main" value="main" />
+      </div>
+      <div>
+        <label class="field-label">Path to config.json</label>
+        <input id="gh-path" class="field-input" placeholder="config.json" value="config.json" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="field-label">Personal access token</label>
+        <input id="gh-token" type="password" class="field-input" placeholder="ghp_..." />
+      </div>
+    </div>
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <button id="gh-save-settings" class="btn-secondary">Save connection</button>
+      <button id="gh-load" class="btn-secondary">Load current config</button>
+      <span id="gh-status" class="text-xs text-muted-foreground"></span>
+    </div>
+  </section>
+
+  <!-- Countdown target -->
+  <section class="card">
+    <h2 class="text-sm font-medium">Countdown target</h2>
+    <p class="mt-1 text-xs text-muted-foreground">Set the release moment in Bucharest time — it's converted to UTC automatically.</p>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-end">
+      <div>
+        <label class="field-label">Release date &amp; time (Europe/Bucharest)</label>
+        <input id="target-datetime" type="datetime-local" class="field-input" />
+      </div>
+      <p id="target-utc-note" class="text-xs text-muted-foreground sm:pb-2"></p>
+    </div>
+    <div id="live-countdown" class="mt-6 grid grid-cols-4 gap-3"></div>
+  </section>
+
+  <!-- Teasers -->
+  <section class="card">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium">Teasers &amp; previews</h2>
+      <span class="status-pill bg-card text-muted-foreground" id="teaser-count">0 teasers</span>
+    </div>
+    <p class="mt-1 text-xs text-muted-foreground">The most recently added teaser is always shown first on the main page. Add 2 or more and visitors get arrows to browse between them.</p>
+
+    <div id="teaser-list" class="mt-4 flex flex-col gap-3"></div>
+
+    <div class="mt-5 grid grid-cols-1 gap-3 border-t border-border pt-5 sm:grid-cols-2">
+      <div>
+        <label class="field-label">New teaser — video URL</label>
+        <input id="new-teaser-video" class="field-input" placeholder="https://.../teaser.mp4" />
+      </div>
+      <div>
+        <label class="field-label">New teaser — poster image URL (optional)</label>
+        <input id="new-teaser-poster" class="field-input" placeholder="https://.../poster.jpg" />
+      </div>
+    </div>
+    <button id="add-teaser" class="btn-secondary mt-3">
+      Add teaser
+    </button>
+  </section>
+
+  <!-- Release link -->
+  <section class="card">
+    <h2 class="text-sm font-medium">Release link</h2>
+    <p class="mt-1 text-xs text-muted-foreground">
+      When the countdown hits zero, the page fades to black, then loads this file and plays it fullscreen. After the release moment has passed, anyone opening the site jumps straight into this sequence.
+    </p>
+    <label class="field-label mt-4">Song / video URL</label>
+    <input id="release-url" class="field-input" placeholder="https://.../nas-mare-bgd.mp4" />
+    <p class="mt-2 text-[0.7rem] leading-relaxed text-muted-foreground">
+      Note: most browsers block autoplay-with-sound until someone has interacted with the page. If that happens, the video still autoplays muted in fullscreen and shows a one-tap "tap for sound" prompt.
+    </p>
+  </section>
+
+  <!-- Save / test -->
+  <section class="card flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <button id="save-config" class="btn-primary">Publish changes</button>
+      <button id="test-release" class="btn-secondary">
+        Test release sequence
+      </button>
+      <span id="save-status" class="text-xs text-muted-foreground"></span>
+    </div>
+    <p class="text-[0.7rem] leading-relaxed text-muted-foreground">
+      "Test release sequence" opens the live site in a new tab and forces the blackout → fullscreen playback immediately, using your unsaved release link and latest teaser — nothing is published until you click "Publish changes".
+    </p>
+  </section>
+</div>
+
+<script>
+  // =========================================================
+  // 0. Password gate — change ADMIN_PASSWORD before deploying.
+  //    This is client-side only; treat it as a light deterrent,
+  //    not real security (anyone can read it in the page source).
+  // =========================================================
+  const ADMIN_PASSWORD = 'noxy-backstage';
+
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = document.getElementById('login-password').value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('login-gate').classList.add('hidden');
+      const dash = document.getElementById('dashboard');
+      dash.classList.remove('hidden');
+      dash.classList.add('flex');
+      lucide.createIcons();
+      initDashboard();
+    } else {
+      document.getElementById('login-error').classList.remove('hidden');
+    }
+  });
+
+  // =========================================================
+  // 1. Timezone helpers — Europe/Bucharest (handles EET/EEST DST)
+  // =========================================================
+  const TIMEZONE = 'Europe/Bucharest';
+
+  // Converts a "YYYY-MM-DDTHH:mm" wall-clock string in `timeZone` to a UTC Date.
+  function zonedTimeToUtc(dateTimeLocalStr, timeZone) {
+    const [datePart, timePart] = dateTimeLocalStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    const utcGuess = Date.UTC(year, month - 1, day, hour, minute, 0);
+
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone, hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    const parts = dtf.formatToParts(new Date(utcGuess));
+    const map = {};
+    parts.forEach((p) => { map[p.type] = p.value; });
+    const hh = map.hour === '24' ? '00' : map.hour;
+    const asUtc = Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day), Number(hh), Number(map.minute), Number(map.second));
+    const diff = asUtc - utcGuess;
+    return new Date(utcGuess - diff);
+  }
+
+  // Converts a UTC ISO string to a "YYYY-MM-DDTHH:mm" value for a datetime-local input, in `timeZone`.
+  function utcToZonedInputValue(isoUtc, timeZone) {
+    const d = new Date(isoUtc);
+    const dtf = new Intl.DateTimeFormat('en-CA', {
+      timeZone, hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    });
+    const parts = dtf.formatToParts(d);
+    const map = {};
+    parts.forEach((p) => { map[p.type] = p.value; });
+    const hh = map.hour === '24' ? '00' : map.hour;
+    return `${map.year}-${map.month}-${map.day}T${hh}:${map.minute}`;
+  }
+
+  function formatBucharest(isoUtc) {
+    return new Date(isoUtc).toLocaleString('en-GB', {
+      timeZone, day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    }) + ' (Bucharest)';
+  }
+
+  // =========================================================
+  // 2. State
+  // =========================================================
+  let state = {
+    targetDateUTC: '2026-07-26T21:00:00.000Z',
+    releaseUrl: '',
+    teasers: [],
+  };
+  let currentSha = null; // GitHub blob sha, needed to update an existing file
+
+  const LS_GH = 'noxy_admin_gh';
+
+  function loadGhSettings() {
+    try { return JSON.parse(localStorage.getItem(LS_GH)) || {}; } catch (e) { return {}; }
+  }
+  function saveGhSettings() {
+    const settings = {
+      owner: document.getElementById('gh-owner').value.trim(),
+      repo: document.getElementById('gh-repo').value.trim(),
+      branch: document.getElementById('gh-branch').value.trim() || 'main',
+      path: document.getElementById('gh-path').value.trim() || 'config.json',
+      token: document.getElementById('gh-token').value.trim(),
+    };
+    localStorage.setItem(LS_GH, JSON.stringify(settings));
+    return settings;
+  }
+
+  function ghApiUrl(settings) {
+    return `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/${settings.path}`;
+  }
+
+  // =========================================================
+  // 3. GitHub load / save
+  // =========================================================
+  async function loadFromGithub() {
+    const settings = saveGhSettings();
+    const statusEl = document.getElementById('gh-status');
+    if (!settings.owner || !settings.repo) {
+      statusEl.textContent = 'Fill in owner + repo first.';
+      return;
+    }
+    statusEl.textContent = 'Loading…';
+    try {
+      const headers = { Accept: 'application/vnd.github+json' };
+      if (settings.token) headers.Authorization = `token ${settings.token}`;
+      const res = await fetch(`${ghApiUrl(settings)}?ref=${settings.branch}`, { headers });
+      if (res.status === 404) {
+        currentSha = null;
+        statusEl.textContent = 'No config.json in the repo yet — publishing will create it.';
+        return;
+      }
+      if (!res.ok) throw new Error(`GitHub responded ${res.status}`);
+      const data = await res.json();
+      currentSha = data.sha;
+      const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+      const parsed = JSON.parse(content);
+      state = {
+        targetDateUTC: parsed.targetDateUTC || state.targetDateUTC,
+        releaseUrl: parsed.releaseUrl || '',
+        teasers: parsed.teasers || [],
+      };
+      populateForm();
+      statusEl.textContent = 'Loaded current config.';
+    } catch (e) {
+      statusEl.textContent = 'Could not load config: ' + e.message;
+    }
+  }
+
+  async function saveToGithub() {
+    const settings = saveGhSettings();
+    const statusEl = document.getElementById('save-status');
+    if (!settings.owner || !settings.repo || !settings.token) {
+      statusEl.textContent = 'Fill in owner, repo and token in the connection panel first.';
+      return;
+    }
+    statusEl.textContent = 'Publishing…';
+    readFormIntoState();
+
+    const body = {
+      message: 'Update release config via admin panel',
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2)))),
+      branch: settings.branch,
+    };
+    if (currentSha) body.sha = currentSha;
+
+    try {
+      const res = await fetch(ghApiUrl(settings), {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `token ${settings.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `GitHub responded ${res.status}`);
+      }
+      const data = await res.json();
+      currentSha = data.content.sha;
+      statusEl.textContent = 'Published — live on the site now.';
+    } catch (e) {
+      statusEl.textContent = 'Failed to publish: ' + e.message;
+    }
+  }
+
+  // =========================================================
+  // 4. Form <-> state
+  // =========================================================
+  function populateForm() {
+    document.getElementById('target-datetime').value = utcToZonedInputValue(state.targetDateUTC, TIMEZONE);
+    document.getElementById('release-url').value = state.releaseUrl || '';
+    renderTeaserList();
+    updateTargetNote();
+  }
+
+  function readFormIntoState() {
+    const dtVal = document.getElementById('target-datetime').value;
+    if (dtVal) state.targetDateUTC = zonedTimeToUtc(dtVal, TIMEZONE).toISOString();
+    state.releaseUrl = document.getElementById('release-url').value.trim();
+  }
+
+  function updateTargetNote() {
+    document.getElementById('target-utc-note').textContent = 'Stored as UTC: ' + state.targetDateUTC;
+  }
+
+  function renderTeaserList() {
+    const list = document.getElementById('teaser-list');
+    const sorted = [...state.teasers].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    document.getElementById('teaser-count').textContent = `${state.teasers.length} teaser${state.teasers.length === 1 ? '' : 's'}`;
+
+    if (!sorted.length) {
+      list.innerHTML = '<p class="text-xs text-muted-foreground">No teasers yet — add one below.</p>';
+      return;
+    }
+
+    list.innerHTML = sorted.map((t, i) => `
+      <div class="flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3">
+        <div class="h-12 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-card">
+          ${t.posterUrl ? `<img src="${escapeHtml(t.posterUrl)}" class="h-full w-full object-cover" />` : ''}
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-xs text-foreground">${escapeHtml(t.videoUrl)}</p>
+          <p class="mt-0.5 text-[0.65rem] text-muted-foreground">${i === 0 ? 'Latest · shown first · ' : ''}${formatBucharest(t.createdAt)}</p>
+        </div>
+        <button class="btn-danger" data-remove-id="${t.id}">Remove</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('[data-remove-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.teasers = state.teasers.filter((t) => t.id !== btn.getAttribute('data-remove-id'));
+        renderTeaserList();
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // =========================================================
+  // 5. Live countdown preview (based on the currently edited value, unsaved)
+  // =========================================================
+  const UNITS = [
+    { key: 'days', label: 'D' }, { key: 'hours', label: 'H' },
+    { key: 'minutes', label: 'M' }, { key: 'seconds', label: 'S' },
+  ];
+
+  function getTimeLeft(targetMs) {
+    const diff = Math.max(0, targetMs - Date.now());
+    return {
+      days: Math.floor(diff / 86400000),
+      hours: Math.floor((diff / 3600000) % 24),
+      minutes: Math.floor((diff / 60000) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    };
+  }
+
+  function renderLivePreview() {
+    const dtVal = document.getElementById('target-datetime').value;
+    if (!dtVal) return;
+    const targetMs = zonedTimeToUtc(dtVal, TIMEZONE).getTime();
+    const time = getTimeLeft(targetMs);
+    document.getElementById('live-countdown').innerHTML = UNITS.map(({ key, label }) => `
+      <div class="flex flex-col items-center rounded-lg border border-border bg-background/50 px-2 py-3">
+        <span class="text-2xl font-semibold tabular-nums">${String(time[key]).padStart(2, '0')}</span>
+        <span class="mt-1 text-[0.6rem] uppercase tracking-widest text-muted-foreground">${label}</span>
+      </div>
+    `).join('');
+  }
+
+  // =========================================================
+  // 6. Test release
+  // =========================================================
+  function testRelease() {
+    readFormIntoState();
+    if (!state.releaseUrl) {
+      document.getElementById('save-status').textContent = 'Add a release link above before testing.';
+      return;
+    }
+    const sorted = [...state.teasers].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const testConfig = {
+      targetDateUTC: state.targetDateUTC,
+      releaseUrl: state.releaseUrl,
+      teasers: sorted.length ? sorted : [{
+        id: 'test', videoUrl: state.releaseUrl, posterUrl: '', createdAt: new Date().toISOString(),
+      }],
+    };
+    localStorage.setItem('noxy_test_config', JSON.stringify(testConfig));
+    window.open('../?test=release', '_blank');
+  }
+
+  // =========================================================
+  // 7. Wire everything up once logged in
+  // =========================================================
+  function initDashboard() {
+    const gh = loadGhSettings();
+    if (gh.owner) document.getElementById('gh-owner').value = gh.owner;
+    if (gh.repo) document.getElementById('gh-repo').value = gh.repo;
+    if (gh.branch) document.getElementById('gh-branch').value = gh.branch;
+    if (gh.path) document.getElementById('gh-path').value = gh.path;
+    if (gh.token) document.getElementById('gh-token').value = gh.token;
+
+    populateForm();
+    renderLivePreview();
+    setInterval(renderLivePreview, 1000);
+
+    document.getElementById('target-datetime').addEventListener('change', () => {
+      readFormIntoState();
+      updateTargetNote();
+      renderLivePreview();
+    });
+
+    document.getElementById('gh-save-settings').addEventListener('click', () => {
+      saveGhSettings();
+      document.getElementById('gh-status').textContent = 'Connection saved in this browser.';
+    });
+    document.getElementById('gh-load').addEventListener('click', loadFromGithub);
+    document.getElementById('save-config').addEventListener('click', saveToGithub);
+    document.getElementById('test-release').addEventListener('click', testRelease);
+
+    document.getElementById('add-teaser').addEventListener('click', () => {
+      const videoEl = document.getElementById('new-teaser-video');
+      const posterEl = document.getElementById('new-teaser-poster');
+      const videoUrl = videoEl.value.trim();
+      if (!videoUrl) return;
+      state.teasers.push({
+        id: 'teaser-' + Date.now(),
+        videoUrl,
+        posterUrl: posterEl.value.trim(),
+        createdAt: new Date().toISOString(),
+      });
+      videoEl.value = '';
+      posterEl.value = '';
+      renderTeaserList();
+    });
+
+    // Auto-load from GitHub if a connection is already saved.
+    if (gh.owner && gh.repo) loadFromGithub();
+  }
+</script>
+
+</body>
+</html>
