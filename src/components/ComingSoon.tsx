@@ -3,15 +3,14 @@ import { Card } from './Card'
 import { Button } from './Button'
 import styles from './ComingSoon.module.css'
 
-export function ComingSoon({ title, phase }: { title: string; phase: string }) {
+export function ComingSoon({ title }: { title: string }) {
   const navigate = useNavigate()
+
   return (
     <div className={styles.wrap}>
       <Card className={styles.card}>
         <h2>{title}</h2>
-        <p>
-          soon
-        </p>
+        <p>soon</p>
         <Button variant="secondary" onClick={() => navigate('/')}>
           Back to Dashboard
         </Button>
