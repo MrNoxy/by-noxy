@@ -3,9 +3,11 @@ import { Login } from '../features/auth/Login'
 import { Register } from '../features/auth/Register'
 import { ForgotPassword } from '../features/auth/ForgotPassword'
 import { VerifyEmail } from '../features/auth/VerifyEmail'
-import { Dashboard } from '../features/dashboard/Dashboard'
+import { Library } from '../features/library/Library'
+import { DocumentDetail } from '../features/library/DocumentDetail'
 import { ComingSoon } from '../components/ComingSoon'
 import { ProtectedRoute } from './ProtectedRoute'
+import { AppShell } from './AppShell'
 
 export function AppRouter() {
   return (
@@ -16,37 +18,22 @@ export function AppRouter() {
       <Route path="/verify-email" element={<VerifyEmail />} />
 
       <Route
-        path="/"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <AppShell />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/notebooks/new"
-        element={
-          <ProtectedRoute>
-            <ComingSoon title="Create Notebook" phase="Phase 2 — Notebook System" />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/sketches/new"
-        element={
-          <ProtectedRoute>
-            <ComingSoon title="New Sketch" phase="Phase 2 — Sketch System" />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <ComingSoon title="Settings" phase="Phase 5 — Settings & Polish" />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route path="/" element={<Library filter="home" />} />
+        <Route path="/documents" element={<Library filter="all" />} />
+        <Route path="/notebooks" element={<Library filter="notebooks" />} />
+        <Route path="/sketches" element={<Library filter="sketches" />} />
+        <Route path="/favorites" element={<Library filter="favorites" />} />
+        <Route path="/trash" element={<Library filter="trash" />} />
+        <Route path="/notebook/:id" element={<DocumentDetail />} />
+        <Route path="/sketch/:id" element={<DocumentDetail />} />
+        <Route path="/settings" element={<ComingSoon title="Settings" phase="Phase 5 — Settings & Polish" />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
