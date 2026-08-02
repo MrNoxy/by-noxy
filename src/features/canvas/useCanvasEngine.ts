@@ -22,8 +22,11 @@ interface DragState {
 const MIN_SCALE = 0.1
 const MAX_SCALE = 8
 
-export function useCanvasEngine(docWidth: number, docHeight: number) {
+export function useCanvasEngine(docWidth: number, docHeight: number, initial?: { layers: Layer[]; activeLayerId: string }) {
   const [state, dispatch] = useReducer(canvasReducer, undefined, (): CanvasState => {
+    if (initial && initial.layers.length > 0) {
+      return { layers: initial.layers, activeLayerId: initial.activeLayerId }
+    }
     const layer = createLayer('Layer 1')
     return { layers: [layer], activeLayerId: layer.id }
   })

@@ -2,14 +2,14 @@
 
 A Goodnotes/Procreate-inspired note-taking and sketching app for iPad, built with React, TypeScript, Vite, and Firebase.
 
-## Status: Phase 3 of 6
+## Status: Phase 4 of 6
 
-This repo is being built in the phased order below. Phases 1–3 are implemented — everything described as "done" is real, verified code (`tsc -b`, `npm run build`, `oxlint` all pass), not scaffolding.
+This repo is being built in the phased order below. Phases 1–4 are implemented — everything described as "done" is real, verified code (`tsc -b`, `npm run build`, `oxlint` all pass), not scaffolding.
 
 - [x] **Phase 1** — Vite/React/TS setup, routing, theme system, Firebase integration, authentication, dashboard shell
 - [x] **Phase 2** — Notebook system, Sketch system, Document library
 - [x] **Phase 3** — Drawing engine: canvas, pens, eraser, layers, shapes, color picker, undo/redo
-- [ ] Phase 4 — Autosave, IndexedDB, offline support, cloud sync, export
+- [x] **Phase 4** — Autosave, IndexedDB, offline support, cloud sync, export
 - [ ] Phase 5 — Settings, PWA, animations, keyboard shortcuts
 - [ ] Phase 6 — Performance optimization, bug fixes, documentation
 
@@ -45,12 +45,25 @@ Opening a notebook or sketch now opens a real, full-screen canvas editor (its ow
 
 ### Known limitations of the drawing engine
 
-- **Nothing is saved yet.** Every stroke lives only in React state for the current tab. Reload, and it's gone. Cloud/offline persistence for drawings is explicitly Phase 4 — the editor says this in a banner rather than silently losing work without telling you.
-- Notebooks currently render a single fixed page (~A4 at 150dpi) — multi-page management (add/reorder/delete pages, thumbnails, bookmarks) is deferred; it's a substantial feature in its own right and is noted as remaining work rather than half-built.
+- Notebooks currently render a single fixed page (~A4 at 150dpi) — multi-page management (add/reorder/delete pages, thumbnails, bookmarks) is deferred; it's a substantial feature in its own right and is noted as remaining work rather than half-built. PDF/PNG export therefore exports "this page," not a multi-page document — the export menu says so.
 - No Apple Pencil tilt/azimuth-driven brush effects (e.g. calligraphy shading) yet — `tiltX`/`tiltY` are available on the pointer event but not yet wired into the renderer.
 - No dedicated Procreate-style brush library (airbrush, watercolor, chalk, texture brushes) — those need real texture/particle rendering, not a renamed stroke, and are left for later polish.
 - Very large canvases with thousands of strokes will eventually need viewport culling (only redrawing visible regions) instead of full-layer recomposite every frame — that's Phase 6 performance work; current approach is correct but not yet optimized for extreme stroke counts.
 - Erasing/deleting a group of objects and then undoing it restores them appended to the layer (not spliced back to their exact original stacking position) — documented in `engine/commands.ts` as a known simplification.
+
+**Phase 4 — Persistence, sync, and export**
+
+- **Autosave**: every layer change is debounced (500ms) into IndexedDB — instant, works fully offline, survives a refresh or crash — and separately debounced (1200ms) into a push to Firebase Realtime Database when connectivity allows.
+- **Real offline detection**: uses Firebase's own `.info/connected` socket state, not just `navigator.onLine` — the latter reports "online" even when a captive portal or firewall is silently blocking the actual database connection; `.info/connected` reflects whether writes will really go through.
+- **Durable sync queue**: a failed or offline cloud push is recorded in an IndexedDB queue (not just retried in memory), so it survives closing the tab. Retries use exponential backoff (2s, 4s, 8s… capped at 5 attempts), and the whole queue — across *all* documents, not just the one currently open — gets flushed automatically the moment connectivity returns.
+- **Recovery on open**: opening a document loads the IndexedDB cache first (instant, offline-capable), fetches the Firebase copy in the background, and reconciles by last-write-wins on a client timestamp — the simplest correct strategy for one editor at a time. This is a real, documented limitation: there's no field-level merge, so the same document edited offline on two separate devices would have one edit silently overwritten by whichever synced last.
+- **Visible sync status** in the editor's top bar: "Saved on this device" → "Syncing…" → "Synced," or "Offline — will sync when back online" with a manual "Retry now" button — not a spinner that lies about what's actually happening.
+- **Real export**, wired to the actual composited canvas (what you draw is exactly what exports — the exporter reuses the same per-layer-opacity compositing technique as the live view, not a separate re-implementation that could drift):
+  - Sketches: PNG, transparent PNG, JPEG, WEBP.
+  - Notebooks: PDF and PNG, for the single page that currently exists.
+  - JPEG has no alpha channel — requesting "transparent" JPEG isn't possible, so the exporter fills the sketch's real background color instead of silently producing a black image, and the export menu doesn't offer that combination as if it worked.
+- `database.rules.json` updated: the Phase 2 rules whitelisted an explicit set of document fields and rejected anything else, which would have silently **blocked** every canvas save once this phase added a new `canvas` child — caught and fixed rather than shipped broken. Canvas content itself (`layers`) is validated only for presence, not deep-typed field-by-field — RTDB rules aren't a practical place to schema-validate arbitrary nested stroke arrays, so real protection there is per-uid write isolation, not content shape.
+
 
 
 ## Getting started
@@ -92,23 +105,26 @@ src/
   features/
     auth/         # Login, Register, ForgotPassword, VerifyEmail, useAuth, AuthContext
     library/      # Library grid, DocumentCard, Create Notebook/Sketch modals, useDocuments hook
-    canvas/        # CanvasEditor, Toolbar, LayersPanel, ColorPicker, useCanvasEngine
-      engine/       # stabilizer, renderer, reducer, commands, UndoManager — the pure logic,
-                     # deliberately separated from the React/DOM layer above it
-  services/       # documentsService.ts — the only module that touches the
-                   # documents/ Realtime Database path directly
+    canvas/        # CanvasEditor, Toolbar, LayersPanel, ColorPicker, ExportMenu, SyncStatus,
+                    # useCanvasEngine, useAutosave
+      engine/       # stabilizer, renderer, reducer, commands, UndoManager, exportService —
+                     # the pure logic, deliberately separated from the React/DOM layer above it
+  services/       # documentsService.ts (document metadata CRUD), canvasSyncService.ts
+                   # (Firebase canvas content read/write), indexedDb.ts (local cache + sync
+                   # queue), syncQueue.ts (flush-on-reconnect)
+  hooks/          # useConnectivity.ts — Firebase .info/connected based online state
   types/          # document.ts — NotebookDocument / SketchDocument / shared types
   firebase/       # single Firebase app/auth/database/storage init
   stores/         # zustand stores (theme)
   styles/         # design tokens (theme.css) + global resets
 ```
 
-## Known limitations (through Phase 3)
+## Known limitations (through Phase 4)
 
-- Notebook cover only supports flat color for now; gradient/image/pattern covers are deferred until Storage rules and the image-upload path exist (Phase 4) — implementing "Image" cover today would mean either faking it or writing to Storage with no rules protecting it, so it's left out rather than half-built.
+- Notebook cover only supports flat color for now; gradient/image/pattern covers are deferred until Storage rules and the image-upload path exist (Phase 5) — implementing "Image" cover today would mean either faking it or writing to Storage with no rules protecting it, so it's left out rather than half-built.
 - No folders yet, so there's no "Move to folder" action in the document menu — only what's real is in the menu.
-- No offline support, no PWA manifest yet.
-- Bundle is unsplit (~540KB JS, mostly Firebase) — code-splitting is a Phase 6 task.
-- See "Known limitations of the drawing engine" above for Phase 3-specific gaps (no save/persistence yet, single-page notebooks, no brush library, etc).
+- No PWA manifest / installability yet (Phase 5).
+- Bundle has grown to ~950KB JS (jsPDF pulls in `html2canvas` and `dompurify` as transitive dependencies even though we only use `addImage`, not its HTML-rendering path) — code-splitting so the PDF export code only loads when Export is actually clicked is a clear Phase 6 target, not done yet.
+- See "Known limitations of the drawing engine" above for Phase 3/4-specific gaps (single-page notebooks, no brush library, last-write-wins sync with no multi-device merge, etc).
 
 

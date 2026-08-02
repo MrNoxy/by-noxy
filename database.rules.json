@@ -79,6 +79,25 @@
               ".validate": "newData.isString()"
             },
 
+            "canvas": {
+              ".validate": "newData.hasChildren(['layers', 'activeLayerId'])",
+              "layers": {
+                ".validate": true
+              },
+              "activeLayerId": {
+                ".validate": "newData.isString()"
+              },
+              "updatedAt": {
+                ".validate": "newData.val() === now || newData.isNumber()"
+              },
+              "updatedAtClient": {
+                ".validate": "newData.isNumber()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+
             "$other": {
               ".validate": false
             }

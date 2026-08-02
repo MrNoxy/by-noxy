@@ -1,0 +1,44 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.offlineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.label {
+  color: var(--text-tertiary);
+}
+
+.synced {
+  color: #22c55e;
+}
+
+.syncing {
+  color: var(--accent);
+}
+
+.offline-queued,
+.error {
+  color: #f59e0b;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.retryButton {
+  border: none;
+  background: var(--bg-sunken);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}

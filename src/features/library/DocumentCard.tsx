@@ -134,8 +134,14 @@ export function DocumentCard({ doc }: { doc: NoteyDocument }) {
                   <button onClick={() => { setMenuOpen(false); toggleFavorite(uid, doc.id, !doc.favorite) }}>
                     {doc.favorite ? 'Remove favorite' : 'Add favorite'}
                   </button>
-                  <button disabled title="Export ships with the drawing engine in Phase 3/4">
-                    Export (Phase 4)
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false)
+                      navigate(doc.type === 'notebook' ? `/notebook/${doc.id}` : `/sketch/${doc.id}`)
+                    }}
+                    title="Export options (PDF/PNG/JPEG/WEBP) live in the editor's Export menu, since export needs the loaded canvas"
+                  >
+                    Open to Export…
                   </button>
                   <button disabled title="Real-time sharing is a future-ready feature, not yet built">
                     Share (planned)

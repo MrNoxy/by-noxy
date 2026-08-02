@@ -51,7 +51,7 @@ export function AppRouter() {
         <Route path="/sketches" element={<Library filter="sketches" />} />
         <Route path="/favorites" element={<Library filter="favorites" />} />
         <Route path="/trash" element={<Library filter="trash" />} />
-        <Route path="/settings" element={<ComingSoon title="Settings" />} />
+        <Route path="/settings" element={<ComingSoon title="Settings" phase="Phase 5 — Settings & Polish" />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
