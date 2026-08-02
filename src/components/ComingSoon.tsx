@@ -10,8 +10,7 @@ export function ComingSoon({ title, phase }: { title: string; phase: string }) {
       <Card className={styles.card}>
         <h2>{title}</h2>
         <p>
-          This isn&rsquo;t built yet &mdash; it&rsquo;s scheduled for <strong>{phase}</strong> of the Notey build
-          plan. Nothing here is faked; the screen simply doesn&rsquo;t exist until that phase ships.
+          soon
         </p>
         <Button variant="secondary" onClick={() => navigate('/')}>
           Back to Dashboard
