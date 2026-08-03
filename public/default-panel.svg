@@ -1,0 +1,21 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b1224"/>
+      <stop offset="100%" stop-color="#0a0710"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8a6fc7" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#8a6fc7" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#8a6fc7" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <g stroke="url(#line)" stroke-width="1.5" fill="none" opacity="0.8">
+    <path d="M -50 480 C 200 380, 300 620, 850 300"/>
+    <path d="M -50 380 C 250 500, 350 200, 850 420"/>
+    <path d="M -50 200 C 200 120, 400 320, 850 120"/>
+  </g>
+  <circle cx="400" cy="300" r="1.5" fill="#8a6fc7" opacity="0.6"/>
+  <text x="50%" y="53%" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#9e94a8" letter-spacing="4">NO IMAGE SET</text>
+</svg>
