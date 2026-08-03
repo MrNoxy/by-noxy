@@ -18,7 +18,11 @@ export function useSiteConfig() {
   }, []);
 
   const updateConfig = async (patch: Partial<SiteConfig>) => {
-    await update(ref(db, "siteConfig"), patch);
+    const clean: Record<string, unknown> = {};
+    Object.entries(patch).forEach(([key, value]) => {
+      clean[key] = value === undefined ? null : value;
+    });
+    await update(ref(db, "siteConfig"), clean);
   };
 
   return { config, loading, updateConfig };
