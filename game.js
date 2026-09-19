@@ -6,13 +6,15 @@ function rotations(prefix,name,rows){let a=rows.map(r=>[...r]);for(let n=0;n<4;n
 add('single','Single',['1']);for(let n=2;n<=5;n++){add(`bar-${n}-h`,`${n} in a row`,['1'.repeat(n)]);add(`bar-${n}-v`,`${n} upright`,Array(n).fill('1'));}
 add('square-2','Little square',['11','11']);add('square-3','Big square',['111','111','111']);add('rectangle-h','Wide rectangle',['111','111']);add('rectangle-v','Tall rectangle',['11','11','11']);rotations('corner-3','Little corner',['10','11']);rotations('l-4','L piece',['10','10','11']);rotations('j-4','J piece',['01','01','11']);rotations('t-4','T piece',['111','010']);add('s-h','S horizontal',['011','110']);add('s-v','S vertical',['10','11','01']);add('z-h','Z horizontal',['110','011']);add('z-v','Z vertical',['01','11','10']);rotations('corner-5','Big corner',['100','100','111']);
 const byId=Object.fromEntries(SHAPES.map(s=>[s.id,s]));
-// A skin is built from a small catalog of pieces: a standalone "solo" character,
-// a head/middle/tail set that composes into a "worm" of any straight length, and
-// four whole "fat" characters for the true 2×2/3×3/wide/tall block shapes.
-// Nothing is decided once and locked in — every render regroups whichever board
-// cells are still alive (per placement) and re-derives the right art for the
-// shape they form *right now*, so a piece that gets partly cleared always still
-// looks like one or more complete little bodies, never a broken fragment.
+// A skin is built from a small, fully hand-drawn catalog: one complete image
+// per straight-run length (1 through 5 — the longest any placed piece can
+// ever produce), plus four whole "fat" characters for the true 2×2/3×3/wide/
+// tall block shapes. Nothing is built by gluing a head+middle+tail together —
+// every run length is its own finished drawing. Nothing is decided once and
+// locked in, either: every render regroups whichever board cells are still
+// alive (per placement) and re-derives the right art for the shape they form
+// *right now*, so a piece that gets partly cleared always still looks like
+// one or more complete little bodies, never a broken fragment.
 const RECT_FAT=new Set(['square-2','square-3','rectangle-h','rectangle-v']);
 const FAT_ROLE={'square-2':'fat-2','square-3':'fat-3','rectangle-h':'fat-wide','rectangle-v':'fat-tall'};
 // Greedily splits a set of cells into the longest straight runs it can find, then
@@ -40,15 +42,16 @@ function decomposeIntoRuns(cells){
 function activeSkinIds(){return SKIN_LIST.filter(s=>s.active).map(s=>s.id);}
 function chooseSkin(){const preferred=prefs.skin&&prefs.skin!=='random'?prefs.skin:null;if(preferred&&SKIN_BY_ID[preferred]&&SKIN_BY_ID[preferred].active)return preferred;const pool=activeSkinIds();return pool.length?pool[Math.floor(Math.random()*pool.length)]:null;}
 function artFor(skinId,role){const skin=skinId&&SKIN_BY_ID[skinId];return skin&&skin.images[role];}
-function drawWormRun(c,skin,color,run,ox,oy,u){
+// One fully-drawn image spans the whole run (a run of 3 uses one "run-3"
+// picture, not three stitched-together tiles). The art is authored lying
+// horizontal, facing right; a vertical run just rotates that same picture 90°.
+function drawRun(c,skin,color,run,ox,oy,u){
  const{x,y,len,orientation}=run;
- for(let i=0;i<len;i++){
-  const cx=ox+(orientation==='h'?x+i:x)*u,cy=oy+(orientation==='v'?y+i:y)*u;
-  const role=len===1?'solo':i===0?'worm-head':i===len-1?'worm-tail':'worm-middle';
-  const img=artFor(skin,role);
-  if(img){c.save();c.translate(cx+u/2,cy+u/2);c.rotate(orientation==='v'?Math.PI/2:0);c.drawImage(img,-u/2,-u/2,u,u);c.restore();}
-  else tile(c,cx,cy,u,PALETTE[color%PALETTE.length]||PALETTE[0]);
- }
+ const img=artFor(skin,'run-'+len);
+ const w=len*u,h=u;
+ const cx=ox+x*u+(orientation==='h'?w:h)/2,cy=oy+y*u+(orientation==='h'?h:w)/2;
+ if(img){c.save();c.translate(cx,cy);c.rotate(orientation==='v'?Math.PI/2:0);c.drawImage(img,-w/2,-h/2,w,h);c.restore();}
+ else for(let i=0;i<len;i++)tile(c,ox+(orientation==='h'?x+i:x)*u,oy+(orientation==='v'?y+i:y)*u,u,PALETTE[color%PALETTE.length]||PALETTE[0]);
 }
 function drawFatBlob(c,skin,color,shape,cells,ox,oy,u){
  const minX=Math.min(...cells.map(p=>p[0])),minY=Math.min(...cells.map(p=>p[1]));
@@ -62,7 +65,7 @@ function drawFatBlob(c,skin,color,shape,cells,ox,oy,u){
 function renderPlacement(c,shapeId,skin,color,cells,ox,oy,u){
  const shape=byId[shapeId];
  if(RECT_FAT.has(shapeId)&&cells.length===shape.cells.length){drawFatBlob(c,skin,color,shape,cells,ox,oy,u);return;}
- for(const run of decomposeIntoRuns(cells))drawWormRun(c,skin,color,run,ox,oy,u);
+ for(const run of decomposeIntoRuns(cells))drawRun(c,skin,color,run,ox,oy,u);
 }
 const PALETTE=['#d8a3b6','#9bbbac','#b2a8ce','#ddb583','#96b8c7','#bdaca0'];
 const $=id=>document.getElementById(id), board=$('board'), ctx=board.getContext('2d'), floating=$('floating'),fctx=floating.getContext('2d');
@@ -157,8 +160,18 @@ const SKIN_MANIFESTS=[{dir:'skins',holiday:false},{dir:'early-skins',holiday:tru
 function parseSkinDate(s){if(!s)return null;const m=/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(s.trim());if(!m)return null;return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),0,0,0,0);}
 function withinWindow(skin,now){const start=parseSkinDate(skin.startDate),end=parseSkinDate(skin.endDate);if(start&&now<start)return false;if(end){const endInclusive=new Date(end.getFullYear(),end.getMonth(),end.getDate(),23,59,59,999);if(now>endInclusive)return false;}return true;}
 async function loadImg(src){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error('bad image'));img.src=src;});}
-const V3_ROLE_MAP={head:'worm-head',tail:'worm-tail',straight:'worm-middle',single:'solo','fat-2':'fat-2','fat-3':'fat-3','fat-wide':'fat-wide','fat-tall':'fat-tall'};
-async function loadSkinFile(dir,file){const res=await fetch(`${dir}/${file}`,{cache:'no-store'});if(!res.ok)throw Error('missing '+file);const data=await res.json();if((data.format!=='purrfect-skin-v4'&&data.format!=='purrfect-skin-v3')||!data.id||!data.parts)throw Error('bad skin file '+file);const isV3=data.format==='purrfect-skin-v3';const images={};for(const[key,entry] of Object.entries(data.parts)){const role=isV3?V3_ROLE_MAP[key]:key;if(role&&entry&&entry.image){try{images[role]=await loadImg(entry.image);}catch{}}}return {id:data.id,name:data.name||data.id,holiday:!!data.holiday,startDate:data.startDate||null,endDate:data.endDate||null,images};}
+// Older formats used square, per-cell tiles (v3: head/tail/straight/single meant
+// to be glued together; v4: worm-head/worm-middle/worm-tail/solo, same idea).
+// Neither maps cleanly onto v5's full-length run-N drawings, since those tiles
+// were never drawn to be a complete 2-, 3-, 4- or 5-long body on their own.
+// Best-effort migration: carry over the fat blocks (unchanged) and use the old
+// single-cell art as run-1; longer runs just fall back to plain tiles until
+// re-drawn in the Studio.
+const OLD_ROLE_MAP={
+ 'purrfect-skin-v3':{head:null,tail:null,straight:null,single:'run-1','fat-2':'fat-2','fat-3':'fat-3','fat-wide':'fat-wide','fat-tall':'fat-tall'},
+ 'purrfect-skin-v4':{'worm-head':null,'worm-middle':null,'worm-tail':null,solo:'run-1','fat-2':'fat-2','fat-3':'fat-3','fat-wide':'fat-wide','fat-tall':'fat-tall'}
+};
+async function loadSkinFile(dir,file){const res=await fetch(`${dir}/${file}`,{cache:'no-store'});if(!res.ok)throw Error('missing '+file);const data=await res.json();const legacyMap=OLD_ROLE_MAP[data.format];if((data.format!=='purrfect-skin-v5'&&!legacyMap)||!data.id||!data.parts)throw Error('bad skin file '+file);const images={};for(const[key,entry] of Object.entries(data.parts)){const role=legacyMap?legacyMap[key]:key;if(role&&entry&&entry.image){try{images[role]=await loadImg(entry.image);}catch{}}}return {id:data.id,name:data.name||data.id,holiday:!!data.holiday,startDate:data.startDate||null,endDate:data.endDate||null,images};}
 async function initSkins(){const now=new Date();const found=[];for(const {dir} of SKIN_MANIFESTS){try{const res=await fetch(`${dir}/manifest.json`,{cache:'no-store'});if(!res.ok)continue;const manifest=await res.json();const files=Array.isArray(manifest.files)?manifest.files:[];for(const file of files){try{found.push(await loadSkinFile(dir,file));}catch{}}}catch{}}
  for(const skin of found){skin.active=withinWindow(skin,now);SKIN_BY_ID[skin.id]=skin;}
  SKIN_LIST=found;
