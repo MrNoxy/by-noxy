@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#faf3ed">
+<title>Skin Studio · Purrfect Blocks</title>
+<meta name="description" content="Draw and align your own Pusheen-style skins for Purrfect Blocks, then export one ready-to-use skin file.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23ca708b'/%3E%3Cpath d='M8 9h7v7H8zm9 0h7v7h-7zm-9 9h7v7H8z' fill='%23fff5ec'/%3E%3C/svg%3E">
+<style>
+:root{font-family:ui-rounded,'SF Pro Rounded',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#57434c;background:#faf3ed}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 10% 15%,#f8dde580,transparent 45%),radial-gradient(ellipse at 95% 90%,#e5e6cf70,transparent 45%),#faf3ed;padding-bottom:60px}
+button,input,select{font:inherit}
+button{cursor:pointer;color:inherit;border:0;touch-action:manipulation}
+button:focus-visible,canvas:focus-visible{outline:3px solid #a44c72;outline-offset:2px}
+a{color:#a24b6e}
+#wrap{max-width:960px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 20px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-.5px}
+.brand-mark{font-size:32px;color:#bf708b;line-height:1}
+.brand span{display:block;font-size:9px;letter-spacing:3px;margin-top:2px;color:#987580}
+nav a{font-size:13px;color:#775360;text-decoration:none;background:#fff9f5;border:1px solid #e9dcd8;border-radius:10px;padding:8px 12px;margin-left:6px}
+nav a:hover{background:#fdf0ee}
+h1{font-size:22px;margin:18px 0 4px}
+p.lede{color:#7c636c;font-size:14.5px;line-height:1.6;max-width:70ch}
+.card{background:#fffaf6;border:1px solid #f0e2de;border-radius:18px;padding:18px;margin-top:18px}
+.card h2{margin:0 0 4px;font-size:16px}
+.card p.note{font-size:13px;color:#8b707c;margin:4px 0 12px;line-height:1.55}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:700;color:#8a6f79;letter-spacing:.2px}
+.field input[type=text],.field input[type=date]{font:inherit;font-size:15px;padding:10px 12px;border:1px solid #d9bfc8;border-radius:10px;background:#fff;color:#57434c;min-width:190px}
+.field.grow{flex:1;min-width:220px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#8a6f79}
+.toggle input{width:18px;height:18px;accent-color:#b76885}
+.filename-preview{margin-top:10px;font-size:13px;background:#f3e9e5;border-radius:10px;padding:9px 12px;word-break:break-all}
+.filename-preview b{color:#a24b6e}
+.btnbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{background:#f1e5e4;padding:11px 16px;border-radius:12px;font-weight:700;font-size:13.5px;color:#775360}
+.btn.primary{background:#b76885;color:#fff}
+.btn.small{padding:7px 11px;font-size:12px;font-weight:600}
+.btn.ghost{background:transparent;border:1px solid #e3cfc9}
+#notice{font-size:13px;background:#f2e4e7;border-radius:10px;padding:10px 12px;margin-top:12px;min-height:16px}
+.parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+.part-card{background:#f6ede9;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.part-card h3{margin:0;font-size:14.5px;display:flex;justify-content:space-between;align-items:center}
+.part-card h3 small{font-weight:500;color:#8a6f79;font-size:11px}
+.part-card .hint{font-size:12px;color:#846774;line-height:1.4;min-height:44px}
+.editor-shell{position:relative;align-self:center;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #e3cfc9;cursor:grab;background:
+ linear-gradient(45deg,#e7d9d3 25%,transparent 25%) 0 0/16px 16px,
+ linear-gradient(-45deg,#e7d9d3 25%,transparent 25%) 0 0/16px 16px,
+ linear-gradient(45deg,transparent 75%,#e7d9d3 75%) 0 0/16px 16px,
+ linear-gradient(-45deg,transparent 75%,#e7d9d3 75%) 0 0/16px 16px,#fdf6f2}
+.editor-shell:active{cursor:grabbing}
+.editor-shell canvas{display:block;touch-action:none}
+.part-controls{display:flex;align-items:center;gap:8px}
+.part-controls input[type=range]{flex:1;accent-color:#b76885}
+.part-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.part-buttons label,.part-buttons button{font-size:11.5px;padding:7px 9px;border-radius:8px;background:#fffaf6;font-weight:600;color:#775360;cursor:pointer}
+.part-buttons input[type=file]{display:none}
+.part-status{font-size:11px;color:#9c8189}
+.part-status.ok{color:#5a8267;font-weight:700}
+label.guide-toggle{display:flex;align-items:center;gap:5px;font-size:11px;color:#8a6f79;font-weight:600}
+label.guide-toggle input{width:14px;height:14px;accent-color:#568979}
+.runs-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+.runs-row>div{text-align:center}
+.runs-row canvas{display:block;background:#f0e4df;border-radius:8px}
+.runs-row span{display:block;font-size:11px;color:#8a6f79;margin-top:4px}
+.split-demos{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px}
+.split-demo{background:#f6ede9;border-radius:14px;padding:12px;text-align:center}
+.split-demo canvas{background:#f0e4df;border-radius:8px;margin:0 auto}
+.split-demo p{font-size:11.5px;color:#846774;margin:8px 0 0}
+.fat-demos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px}
+.fat-demo{background:#f6ede9;border-radius:14px;padding:14px;text-align:center}
+.fat-demo canvas{background:#f0e4df;border-radius:10px;margin:0 auto;display:block}
+.fat-demo .demo-buttons{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.fat-demo button{font-size:11.5px;padding:7px 10px;border-radius:8px;background:#fffaf6;font-weight:600;color:#775360}
+.fat-demo p{font-size:12px;color:#846774;margin:8px 0 0;min-height:32px}
+details.notes{margin-top:16px;font-size:13.5px}
+details.notes summary{cursor:pointer;font-weight:700;color:#8a6f79}
+details.notes p{color:#7c636c;line-height:1.6}
+footer{text-align:center;font-size:12px;color:#957e84;margin-top:30px}
+</style>
+</head>
+<body>
+<div id="wrap">
+<header>
+ <div class="brand"><span class="brand-mark">✿</span><div>Purrfect<span>SKIN STUDIO</span></div></div>
+ <nav><a href="index.html">Home</a><a href="game.html">Play the game ↗</a></nav>
+</header>
+<h1>Draw a little kit, line it up, export one skin</h1>
+<p class="lede">A skin is built from just <b>eight pieces of art</b>: a standalone little cat, a head/middle/tail set that composes into a "worm" of any straight length, and four whole "fat" characters for solid 2×2 / 3×3 / 3×2 / 2×3 blocks. Every game piece — even bent ones like L, T, S and Z shapes — is automatically split into straight runs and lone singles, and a fat block only stays one big character <em>while it's fully intact</em>. The moment a line-clear removes even one of its cells, it's redrawn on the spot as fresh runs — so nothing ever shows up as a broken half-body. Scroll down to see this live.</p>
+
+<div class="card">
+ <h2>Skin details</h2>
+ <p class="note">This name and these dates become the exported filename, following the game's <code>Name:startDate:endDate</code> convention.</p>
+ <div class="row">
+  <div class="field grow"><span>Skin name</span><input type="text" id="skin-name" placeholder="e.g. Classic Pusheen"></div>
+  <label class="toggle"><input type="checkbox" id="holiday-toggle"> Limited-time / holiday skin</label>
+ </div>
+ <div class="row" id="date-row" hidden style="margin-top:10px">
+  <div class="field"><span>Starts showing</span><input type="date" id="start-date"></div>
+  <div class="field"><span>Stops showing</span><input type="date" id="end-date"></div>
+ </div>
+ <div class="filename-preview">Will export as <b id="filename-out">skin.json</b> → place it in <b id="folder-out">skins/</b></div>
+ <div class="btnbar">
+  <button class="btn primary" id="export-btn">Export skin</button>
+  <label class="btn">Import skin to edit<input type="file" id="import-file" accept="application/json,.json" hidden></label>
+  <button class="btn ghost" id="reset-btn">Start over</button>
+ </div>
+ <p id="notice"></p>
+</div>
+
+<div class="card">
+ <h2>The eight parts</h2>
+ <p class="note">Head, middle and tail rotate automatically to build a run of any length, in either direction. The four fat characters only need to look good as one whole picture — they don't need to connect to anything.</p>
+ <div class="parts-grid" id="parts-grid"></div>
+ <details class="notes">
+  <summary>How to line things up well</summary>
+  <p>Turn on "Show guide" on a part to see the 96px-wide connector band the game expects at each edge. Keep the same band width, position and color on every part that touches another — <b>head</b>'s right edge, <b>middle</b>'s left and right edges, and <b>tail</b>'s left edge should all match — so a run of any length reads as one continuous body with no visible seams. Drag the artwork to slide it, and use the slider to grow or shrink it inside the frame.</p>
+  <p>The two live preview sections below assemble real runs and real game shapes from your current art — including a working "simulate a line clear" demo on the fat blocks — so you can catch a bad seam or a broken-looking transformation before you export.</p>
+  <p>Prefer drawing in Procreate or another app first? Use "Guide PNG" on any part for a reference image sized exactly right, with the connector band marked in green.</p>
+ </details>
+</div>
+
+<div class="card">
+ <h2>Live preview · runs &amp; bent pieces</h2>
+ <p class="note">Straight runs of every length your current head/middle/tail/solo art can build, plus a few real game pieces (little corner, L, T, S, big corner) showing exactly how they split into runs.</p>
+ <div class="runs-row" id="runs-h"></div>
+ <div class="runs-row" id="runs-v" style="margin-top:12px"></div>
+ <div class="split-demos" id="split-demos"></div>
+</div>
+
+<div class="card">
+ <h2>Live preview · fat blocks, and what happens when a line clears</h2>
+ <p class="note">Each fat block starts as one whole character. Try clearing a row or column on one — watch it redraw itself as clean runs instantly, exactly like it will in-game.</p>
+ <div class="fat-demos" id="fat-demos"></div>
+</div>
+<footer>Purrfect Blocks Skin Studio — made to sit next to the game, not inside it.</footer>
+</div>
+<script>
+'use strict';
+/* ---------- shared shape logic (mirrors game.js's gameplay shapes) ---------- */
+const SHAPES=[];
+function add(id,name,rows){const cells=[];rows.forEach((row,y)=>[...row].forEach((v,x)=>{if(v==='1')cells.push([x,y]);}));SHAPES.push({id,name,cells,w:rows[0].length,h:rows.length});}
+function rotations(prefix,name,rows){let a=rows.map(r=>[...r]);for(let n=0;n<4;n++){add(`${prefix}-${n*90}`,`${name} · ${n*90}°`,a.map(r=>r.join('')));a=a[0].map((_,i)=>a.map(r=>r[i]).reverse());}}
+add('single','Single',['1']);for(let n=2;n<=5;n++){add(`bar-${n}-h`,`${n} in a row`,['1'.repeat(n)]);add(`bar-${n}-v`,`${n} upright`,Array(n).fill('1'));}
+add('square-2','Little square',['11','11']);add('square-3','Big square',['111','111','111']);add('rectangle-h','Wide rectangle',['111','111']);add('rectangle-v','Tall rectangle',['11','11','11']);rotations('corner-3','Little corner',['10','11']);rotations('l-4','L piece',['10','10','11']);rotations('j-4','J piece',['01','01','11']);rotations('t-4','T piece',['111','010']);add('s-h','S horizontal',['011','110']);add('s-v','S vertical',['10','11','01']);add('z-h','Z horizontal',['110','011']);add('z-v','Z vertical',['01','11','10']);rotations('corner-5','Big corner',['100','100','111']);
+const byId=Object.fromEntries(SHAPES.map(s=>[s.id,s]));
+const RECT_FAT=new Set(['square-2','square-3','rectangle-h','rectangle-v']);
+const FAT_ROLE={'square-2':'fat-2','square-3':'fat-3','rectangle-h':'fat-wide','rectangle-v':'fat-tall'};
+
+/* Same greedy run-splitting algorithm the game uses. */
+function decomposeIntoRuns(cells){
+ const set=new Set(cells.map(([x,y])=>x+','+y)),claimed=new Set();
+ const has=(x,y)=>set.has(x+','+y)&&!claimed.has(x+','+y);
+ const measure=(x,y,dx,dy)=>{let len=0;while(has(x,y)){len++;x+=dx;y+=dy;}return len;};
+ const ordered=cells.slice().sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
+ const runs=[];
+ while(true){
+  let best=null;
+  for(const[x,y] of ordered){
+   if(claimed.has(x+','+y))continue;
+   if(!has(x-1,y)){const len=measure(x,y,1,0);if(!best||len>best.len)best={x,y,len,orientation:'h'};}
+   if(!has(x,y-1)){const len=measure(x,y,0,1);if(!best||len>best.len)best={x,y,len,orientation:'v'};}
+  }
+  if(!best)break;
+  let{x,y}=best;for(let i=0;i<best.len;i++){claimed.add(x+','+y);if(best.orientation==='h')x++;else y++;}
+  runs.push(best);
+ }
+ return runs;
+}
+
+/* ---------- studio state ---------- */
+const PART_CELL=256; // true px per grid cell, matches the game
+const EDITOR_CELL=72; // on-screen px per grid cell in the alignment editor
+const FACTOR=PART_CELL/EDITOR_CELL;
+const PARTS=[
+ {id:'solo',name:'Tiny Pusheen',w:1,h:1,ports:[],hint:'A standalone 1×1 character, used for any leftover single cell.'},
+ {id:'worm-head',name:'Worm · head',w:1,h:1,ports:[1],hint:'The front of a run. Face opens LEFT; connects to the next segment on the RIGHT.'},
+ {id:'worm-middle',name:'Worm · middle',w:1,h:1,ports:[1,3],hint:'Repeatable body segment. Connects LEFT and RIGHT — reused as many times as a run needs.'},
+ {id:'worm-tail',name:'Worm · tail',w:1,h:1,ports:[3],hint:'The back of a run. Connects on the LEFT; tail flourish opens on the RIGHT.'},
+ {id:'fat-2',name:'Fat 2 × 2',w:2,h:2,ports:[],hint:'One complete character filling a 2×2 block — while it stays fully intact.'},
+ {id:'fat-3',name:'Fat 3 × 3',w:3,h:3,ports:[],hint:'One complete character filling a 3×3 block — while it stays fully intact.'},
+ {id:'fat-wide',name:'Fat 3 × 2',w:3,h:2,ports:[],hint:'One wide character filling a 3×2 block — while it stays fully intact.'},
+ {id:'fat-tall',name:'Fat 2 × 3',w:2,h:3,ports:[],hint:'One tall character filling a 2×3 block — while it stays fully intact.'}
+];
+const DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
+const partsState={};
+for(const p of PARTS)partsState[p.id]={img:null,x:0,y:0,scale:1,canvas:null};
+
+function bake(part){
+ const st=partsState[part.id],tw=part.w*PART_CELL,th=part.h*PART_CELL;
+ if(!st.canvas)st.canvas=document.createElement('canvas');
+ st.canvas.width=tw;st.canvas.height=th;
+ const g=st.canvas.getContext('2d');
+ g.clearRect(0,0,tw,th);
+ if(st.img){
+  const iw=st.img.width*st.scale,ih=st.img.height*st.scale;
+  const cx=tw/2+st.x,cy=th/2+st.y;
+  g.drawImage(st.img,cx-iw/2,cy-ih/2,iw,ih);
+ }
+}
+function drawGuideOverlay(g,part,dw,dh){
+ g.save();
+ if(part.ports.length){
+  g.strokeStyle='#568979cc';g.lineWidth=EDITOR_CELL*(96/256);g.lineCap='butt';
+  const cx=dw/2,cy=dh/2;
+  for(const port of part.ports){const [dx,dy]=DIRS[port];g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dx*dw/2,cy+dy*dh/2);g.stroke();}
+ }
+ g.strokeStyle='#a24b6e88';g.lineWidth=2;g.strokeRect(1,1,dw-2,dh-2);
+ g.restore();
+}
+function drawEditor(part){
+ const st=partsState[part.id];
+ const canvas=document.getElementById('editor-'+part.id);
+ const dw=part.w*EDITOR_CELL,dh=part.h*EDITOR_CELL;
+ canvas.width=dw;canvas.height=dh;
+ const g=canvas.getContext('2d');
+ g.clearRect(0,0,dw,dh);
+ if(st.canvas)g.drawImage(st.canvas,0,0,dw,dh);
+ if(document.getElementById('guide-'+part.id).checked)drawGuideOverlay(g,part,dw,dh);
+}
+
+/* ---------- shared renderer, mirrors game.js's renderPlacement ---------- */
+function artFor(role){const st=partsState[role];return st&&st.canvas?st.canvas:null;}
+function drawWormRun(c,run,ox,oy,u){
+ const{x,y,len,orientation}=run;
+ for(let i=0;i<len;i++){
+  const cx=ox+(orientation==='h'?x+i:x)*u,cy=oy+(orientation==='v'?y+i:y)*u;
+  const role=len===1?'solo':i===0?'worm-head':i===len-1?'worm-tail':'worm-middle';
+  const img=artFor(role);
+  c.save();c.translate(cx+u/2,cy+u/2);c.rotate(orientation==='v'?Math.PI/2:0);
+  if(img)c.drawImage(img,-u/2,-u/2,u,u);else{c.fillStyle='#e3cfc7';c.fillRect(-u/2+1,-u/2+1,u-2,u-2);}
+  c.restore();
+ }
+}
+function drawFatBlob(c,shape,cells,ox,oy,u){
+ const minX=Math.min(...cells.map(p=>p[0])),minY=Math.min(...cells.map(p=>p[1]));
+ const img=artFor(FAT_ROLE[shape.id]);
+ if(img)c.drawImage(img,ox+minX*u,oy+minY*u,shape.w*u,shape.h*u);
+ else for(const[x,y] of cells){c.fillStyle='#e3cfc7';c.fillRect(ox+x*u+1,oy+y*u+1,u-2,u-2);}
+}
+function renderPlacement(c,shapeId,cells,ox,oy,u){
+ const shape=byId[shapeId];
+ if(RECT_FAT.has(shapeId)&&cells.length===shape.cells.length){drawFatBlob(c,shape,cells,ox,oy,u);return;}
+ for(const run of decomposeIntoRuns(cells))drawWormRun(c,run,ox,oy,u);
+}
+
+let refreshTimer=null;
+function scheduleRefreshDemos(){clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshDemos,60);}
+
+function buildPartCard(part){
+ const card=document.createElement('div');
+ card.className='part-card';
+ card.innerHTML=`
+  <h3>${part.name}<small>${part.w*PART_CELL}×${part.h*PART_CELL}px</small></h3>
+  <p class="hint">${part.hint}</p>
+  <div class="editor-shell" style="width:${part.w*EDITOR_CELL}px;height:${part.h*EDITOR_CELL}px">
+   <canvas id="editor-${part.id}" width="${part.w*EDITOR_CELL}" height="${part.h*EDITOR_CELL}"></canvas>
+  </div>
+  <label class="guide-toggle"><input type="checkbox" id="guide-${part.id}" checked> Show guide</label>
+  <div class="part-controls"><span style="font-size:11px;color:#8a6f79">Size</span><input type="range" id="scale-${part.id}" min="0.3" max="3" step="0.01" value="1"></div>
+  <div class="part-buttons">
+   <label>Upload PNG<input type="file" accept="image/png" id="upload-${part.id}"></label>
+   <button id="guidepng-${part.id}" type="button">Guide PNG ↓</button>
+   <button id="clear-${part.id}" type="button">Clear</button>
+  </div>
+  <p class="part-status" id="status-${part.id}">Empty — falls back to a plain tile in-game.</p>
+ `;
+ return card;
+}
+function fitScale(part,img){const tw=part.w*PART_CELL,th=part.h*PART_CELL;return Math.min(tw/img.width,th/img.height);}
+function refreshPart(part){
+ bake(part);
+ drawEditor(part);
+ scheduleRefreshDemos();
+ const st=partsState[part.id],status=document.getElementById('status-'+part.id);
+ if(st.img){status.textContent='Art loaded — drag to nudge, or use the slider to resize.';status.classList.add('ok');}
+ else{status.textContent='Empty — falls back to a plain tile in-game.';status.classList.remove('ok');}
+}
+function setupPart(part){
+ const grid=document.getElementById('parts-grid');
+ grid.appendChild(buildPartCard(part));
+ const editor=document.getElementById('editor-'+part.id);
+ const guideBox=document.getElementById('guide-'+part.id);
+ const scaleInput=document.getElementById('scale-'+part.id);
+ const upload=document.getElementById('upload-'+part.id);
+ const clearBtn=document.getElementById('clear-'+part.id);
+ const guideBtn=document.getElementById('guidepng-'+part.id);
+ let dragging=null;
+ editor.addEventListener('pointerdown',e=>{if(!partsState[part.id].img)return;dragging={x:e.clientX,y:e.clientY};editor.setPointerCapture(e.pointerId);});
+ editor.addEventListener('pointermove',e=>{if(!dragging)return;const dx=(e.clientX-dragging.x)*FACTOR,dy=(e.clientY-dragging.y)*FACTOR;dragging={x:e.clientX,y:e.clientY};const st=partsState[part.id];st.x+=dx;st.y+=dy;refreshPart(part);});
+ editor.addEventListener('pointerup',()=>dragging=null);
+ editor.addEventListener('pointercancel',()=>dragging=null);
+ guideBox.addEventListener('change',()=>drawEditor(part));
+ scaleInput.addEventListener('input',e=>{partsState[part.id].scale=Number(e.target.value);refreshPart(part);});
+ upload.addEventListener('change',async ()=>{
+  const file=upload.files[0];if(!file)return;
+  try{
+   if(file.type!=='image/png')throw Error('Please choose a PNG image.');
+   const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+   const img=new Image();img.src=dataUrl;await img.decode();
+   partsState[part.id].img=img;
+   partsState[part.id].scale=fitScale(part,img);
+   partsState[part.id].x=0;partsState[part.id].y=0;
+   scaleInput.value=partsState[part.id].scale;
+   refreshPart(part);
+   setNotice(`${part.name} updated. Drag the art or use the slider to line it up, then check the live previews below.`);
+  }catch(err){setNotice(err.message||'That image could not be loaded.',true);}
+  upload.value='';
+ });
+ clearBtn.addEventListener('click',()=>{partsState[part.id]={img:null,x:0,y:0,scale:1,canvas:null};scaleInput.value=1;refreshPart(part);});
+ guideBtn.addEventListener('click',()=>downloadGuide(part));
+ refreshPart(part);
+}
+function downloadGuide(part){
+ const c=document.createElement('canvas');c.width=part.w*PART_CELL;c.height=part.h*PART_CELL;
+ const g=c.getContext('2d');
+ g.fillStyle='#ead6df';g.fillRect(0,0,c.width,c.height);
+ g.strokeStyle='#b97694';g.lineWidth=2;g.strokeRect(1,1,c.width-2,c.height-2);
+ if(part.ports.length){
+  g.strokeStyle='#568979';g.lineWidth=96;g.lineCap='butt';
+  const cx=c.width/2,cy=c.height/2;
+  for(const port of part.ports){const [dx,dy]=DIRS[port];g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dx*cx,cy+dy*cy);g.stroke();}
+ }
+ g.fillStyle='#7c636c';g.font='bold 16px sans-serif';g.textAlign='center';g.fillText(part.id.toUpperCase(),c.width/2,c.height/2+6);
+ c.toBlob(b=>downloadBlob(b,part.id+'-guide.png'));
+}
+function downloadBlob(blob,name){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+
+/* ---------- live preview: runs ---------- */
+function buildRunsRow(containerId,orientation){
+ const container=document.getElementById(containerId);
+ container.innerHTML='';
+ for(let len=1;len<=6;len++){
+  const wrap=document.createElement('div');
+  const canvas=document.createElement('canvas');
+  const cell=48;
+  canvas.width=orientation==='h'?len*cell:cell;
+  canvas.height=orientation==='v'?len*cell:cell;
+  wrap.appendChild(canvas);
+  const label=document.createElement('span');label.textContent=(orientation==='h'?'↔ ':'↕ ')+len;
+  wrap.appendChild(label);
+  container.appendChild(wrap);
+  canvas.dataset.len=len;canvas.dataset.orientation=orientation;canvas.dataset.cell=cell;
+ }
+}
+function renderRunsRow(containerId){
+ const container=document.getElementById(containerId);
+ for(const canvas of container.querySelectorAll('canvas')){
+  const len=Number(canvas.dataset.len),orientation=canvas.dataset.orientation,cell=Number(canvas.dataset.cell);
+  const g=canvas.getContext('2d');g.clearRect(0,0,canvas.width,canvas.height);
+  drawWormRun(g,{x:0,y:0,len,orientation},0,0,cell);
+ }
+}
+
+/* ---------- live preview: bent-piece split demos ---------- */
+const SPLIT_DEMO_IDS=['corner-3-0','l-4-0','t-4-0','s-h','corner-5-0'];
+function buildSplitDemos(){
+ const container=document.getElementById('split-demos');
+ container.innerHTML='';
+ for(const shapeId of SPLIT_DEMO_IDS){
+  const shape=byId[shapeId];
+  const cell=34;
+  const div=document.createElement('div');div.className='split-demo';
+  const canvas=document.createElement('canvas');canvas.width=shape.w*cell;canvas.height=shape.h*cell;canvas.dataset.shape=shapeId;canvas.dataset.cell=cell;
+  const p=document.createElement('p');p.textContent=shape.name;
+  div.append(canvas,p);
+  container.append(div);
+ }
+}
+function renderSplitDemos(){
+ for(const canvas of document.querySelectorAll('#split-demos canvas')){
+  const shapeId=canvas.dataset.shape,cell=Number(canvas.dataset.cell),shape=byId[shapeId];
+  const g=canvas.getContext('2d');g.clearRect(0,0,canvas.width,canvas.height);
+  renderPlacement(g,shapeId,shape.cells,0,0,cell);
+ }
+}
+
+/* ---------- live preview: fat blocks + simulate-a-clear ---------- */
+const FAT_DEMO_SHAPES=['square-2','square-3','rectangle-h','rectangle-v'];
+const fatDemoState={};
+function buildFatDemos(){
+ const container=document.getElementById('fat-demos');
+ container.innerHTML='';
+ for(const shapeId of FAT_DEMO_SHAPES){
+  const shape=byId[shapeId];
+  fatDemoState[shapeId]=new Set(shape.cells.map(([x,y])=>x+','+y));
+  const cell=40;
+  const div=document.createElement('div');div.className='fat-demo';
+  const canvas=document.createElement('canvas');canvas.width=shape.w*cell;canvas.height=shape.h*cell;
+  const buttons=document.createElement('div');buttons.className='demo-buttons';
+  for(let row=0;row<shape.h;row++){
+   const b=document.createElement('button');b.textContent=`Clear row ${row+1}`;
+   b.onclick=()=>{for(let x=0;x<shape.w;x++)fatDemoState[shapeId].delete(x+','+row);renderFatDemo(shapeId);};
+   buttons.appendChild(b);
+  }
+  for(let col=0;col<shape.w;col++){
+   const b=document.createElement('button');b.textContent=`Clear col ${col+1}`;
+   b.onclick=()=>{for(let y=0;y<shape.h;y++)fatDemoState[shapeId].delete(col+','+y);renderFatDemo(shapeId);};
+   buttons.appendChild(b);
+  }
+  const resetBtn=document.createElement('button');resetBtn.textContent='Reset';
+  resetBtn.onclick=()=>{fatDemoState[shapeId]=new Set(shape.cells.map(([x,y])=>x+','+y));renderFatDemo(shapeId);};
+  buttons.appendChild(resetBtn);
+  const p=document.createElement('p');p.id='fat-demo-note-'+shapeId;
+  div.append(canvas,buttons,p);
+  container.append(div);
+  canvas.dataset.shape=shapeId;canvas.dataset.cell=cell;
+ }
+}
+function renderFatDemo(shapeId){
+ const shape=byId[shapeId],cell=40;
+ const canvas=document.querySelector(`#fat-demos canvas[data-shape="${shapeId}"]`);
+ const g=canvas.getContext('2d');g.clearRect(0,0,canvas.width,canvas.height);
+ const cells=[...fatDemoState[shapeId]].map(k=>k.split(',').map(Number));
+ const note=document.getElementById('fat-demo-note-'+shapeId);
+ if(!cells.length){note.textContent='Fully cleared — nothing left to draw.';return;}
+ const stillFat=RECT_FAT.has(shapeId)&&cells.length===shape.cells.length;
+ note.textContent=stillFat?'Fully intact — shown as one big character.':`Transformed into ${decomposeIntoRuns(cells).length} run(s), live.`;
+ renderPlacement(g,shapeId,cells,0,0,cell);
+}
+function refreshFatDemos(){for(const shapeId of FAT_DEMO_SHAPES)renderFatDemo(shapeId);}
+function refreshDemos(){renderRunsRow('runs-h');renderRunsRow('runs-v');renderSplitDemos();refreshFatDemos();}
+
+/* ---------- metadata & export ---------- */
+const $=id=>document.getElementById(id);
+function toDMY(isoDate){if(!isoDate)return null;const [y,m,d]=isoDate.split('-');return `${d}.${m}.${y}`;}
+function fromDMY(dmy){if(!dmy)return '';const [d,m,y]=dmy.split('.');return `${y}-${m}-${d}`;}
+function slugify(name){return (name||'skin').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'skin';}
+function safeNamePart(name){return (name||'Skin').trim().replace(/[\\/:*?"<>|]/g,'');}
+function currentFilename(){
+ const name=safeNamePart($('skin-name').value)||'Skin';
+ if($('holiday-toggle').checked){
+  const start=toDMY($('start-date').value)||'01.01.2026',end=toDMY($('end-date').value)||'31.12.2026';
+  return {file:`${name}:${start}:${end}.json`,folder:'early-skins/'};
+ }
+ return {file:`${name}.json`,folder:'skins/'};
+}
+function refreshFilenamePreview(){const {file,folder}=currentFilename();$('filename-out').textContent=file;$('folder-out').textContent=folder;}
+$('skin-name').addEventListener('input',refreshFilenamePreview);
+$('holiday-toggle').addEventListener('change',e=>{$('date-row').hidden=!e.target.checked;refreshFilenamePreview();});
+$('start-date').addEventListener('change',refreshFilenamePreview);
+$('end-date').addEventListener('change',refreshFilenamePreview);
+function setNotice(msg,isError=false){const el=$('notice');el.textContent=msg;el.style.background=isError?'#f6d9dd':'#f2e4e7';el.style.color=isError?'#a53652':'#57434c';}
+
+$('export-btn').addEventListener('click',()=>{
+ const name=$('skin-name').value.trim();
+ if(!name){setNotice('Give your skin a name first.',true);return;}
+ const anyArt=PARTS.some(p=>partsState[p.id].img);
+ if(!anyArt){setNotice('Add at least one part before exporting — otherwise every shape will fall back to plain tiles.',true);return;}
+ const holiday=$('holiday-toggle').checked;
+ const startDate=holiday?toDMY($('start-date').value):null;
+ const endDate=holiday?toDMY($('end-date').value):null;
+ if(holiday&&(!startDate||!endDate)){setNotice('Pick both a start and an end date for a holiday skin.',true);return;}
+ const parts={};
+ for(const p of PARTS){const st=partsState[p.id];if(st.img)parts[p.id]={image:st.canvas.toDataURL('image/png'),x:Math.round(st.x),y:Math.round(st.y),scale:Number(st.scale.toFixed(3))};}
+ const skin={format:'purrfect-skin-v4',id:slugify(name),name,holiday,startDate,endDate,createdWith:'Purrfect Blocks Skin Studio',parts};
+ const {file,folder}=currentFilename();
+ downloadBlob(new Blob([JSON.stringify(skin)],{type:'application/json'}),file);
+ setNotice(`Downloaded "${file}" (some browsers swap ":" for "_" in saved filenames — harmless, the dates that matter are stored inside the file). Move it into your project's ${folder} folder, then add its filename to that folder's manifest.json "files" list so the game picks it up.`);
+});
+
+// Older exports (format v3) used a 10-part topology system (head/tail/straight/
+// corner/junction/single/fat-*). Corner and junction have no equivalent here —
+// bent pieces are just split into runs now — so they're dropped on import.
+const V3_TO_V4={head:'worm-head',tail:'worm-tail',straight:'worm-middle',single:'solo','fat-2':'fat-2','fat-3':'fat-3','fat-wide':'fat-wide','fat-tall':'fat-tall'};
+$('import-file').addEventListener('change',async ()=>{
+ const file=$('import-file').files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(!data.parts||(data.format!=='purrfect-skin-v4'&&data.format!=='purrfect-skin-v3'))throw Error('That is not a Purrfect Blocks skin file.');
+  const isV3=data.format==='purrfect-skin-v3';
+  const sourceParts={};
+  if(isV3){for(const[oldId,entry] of Object.entries(data.parts)){const newId=V3_TO_V4[oldId];if(newId&&entry)sourceParts[newId]=entry;}}
+  else Object.assign(sourceParts,data.parts);
+  $('skin-name').value=data.name||'';
+  $('holiday-toggle').checked=!!data.holiday;
+  $('date-row').hidden=!data.holiday;
+  if(data.startDate)$('start-date').value=fromDMY(data.startDate);
+  if(data.endDate)$('end-date').value=fromDMY(data.endDate);
+  for(const part of PARTS){
+   const entry=sourceParts[part.id];
+   const scaleInput=document.getElementById('scale-'+part.id);
+   if(entry&&entry.image){const img=new Image();img.src=entry.image;await img.decode();partsState[part.id]={img,x:0,y:0,scale:1,canvas:null};}
+   else partsState[part.id]={img:null,x:0,y:0,scale:1,canvas:null};
+   scaleInput.value=1;refreshPart(part);
+  }
+  refreshFilenamePreview();
+  setNotice(`Loaded "${data.name}" for editing.`+(isV3?' This was an older v3 file — its head/tail/straight/single art was carried over as worm-head/worm-tail/worm-middle/solo; corner and junction pieces (if any) had no equivalent here and were dropped.':' Keep nudging, or export again when it\u2019s ready.'));
+ }catch(err){setNotice(err.message||'Could not read that file.',true);}
+ $('import-file').value='';
+});
+
+$('reset-btn').addEventListener('click',()=>{
+ if(!confirm('Clear the name, dates and every part? This cannot be undone.'))return;
+ $('skin-name').value='';$('holiday-toggle').checked=false;$('date-row').hidden=true;$('start-date').value='';$('end-date').value='';
+ for(const part of PARTS){partsState[part.id]={img:null,x:0,y:0,scale:1,canvas:null};document.getElementById('scale-'+part.id).value=1;refreshPart(part);}
+ refreshFilenamePreview();
+ setNotice('Cleared. Start a fresh skin whenever you like.');
+});
+
+/* ---------- boot ---------- */
+for(const part of PARTS)setupPart(part);
+buildRunsRow('runs-h','h');buildRunsRow('runs-v','v');
+buildSplitDemos();
+buildFatDemos();
+refreshDemos();
+refreshFilenamePreview();
+</script>
+</body>
+</html>

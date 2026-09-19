@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#faf3ed">
+<title>Purrfect Blocks</title>
+<meta name="description" content="A little block puzzle where every piece is dressed in your own artwork. Play, then design your own skins.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23ca708b'/%3E%3Cpath d='M8 9h7v7H8zm9 0h7v7h-7zm-9 9h7v7H8z' fill='%23fff5ec'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--pink:#b76885;--pink-deep:#a24b6e;--cream:#faf3ed;--ink:#57434c;--muted:#8a6f79}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:ui-rounded,'SF Pro Rounded',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--ink);background:var(--cream);overflow-x:hidden}
+a{color:var(--pink-deep)}
+button{font:inherit;cursor:pointer;border:0;touch-action:manipulation}
+
+.bg{position:fixed;inset:0;z-index:-1;background:
+ radial-gradient(ellipse 60% 40% at 12% 8%,#f8dde590,transparent 60%),
+ radial-gradient(ellipse 55% 45% at 92% 12%,#cfe0d590,transparent 60%),
+ radial-gradient(ellipse 60% 50% at 50% 100%,#e5e6cf70,transparent 60%),
+ var(--cream)}
+
+header{max-width:1040px;margin:0 auto;padding:22px 24px 0;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.4px}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--pink);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;padding:5px}
+.brand-mark i{background:#fff5ec;border-radius:2px}
+.brand-mark i:nth-child(3){grid-column:1}
+.brand-mark i:nth-child(4){visibility:hidden}
+nav{display:flex;gap:8px}
+nav a{text-decoration:none;font-size:13.5px;font-weight:700;color:var(--muted);padding:9px 14px;border-radius:10px}
+nav a:hover{background:#ffffffaa}
+
+.hero{max-width:1040px;margin:0 auto;padding:56px 24px 20px;display:grid;grid-template-columns:1.1fr 1fr;gap:36px;align-items:center}
+@media (max-width:820px){.hero{grid-template-columns:1fr;padding-top:30px}}
+.hero h1{font-size:clamp(34px,6vw,54px);line-height:1.03;margin:0 0 14px;letter-spacing:-1.2px}
+.hero h1 em{font-style:normal;color:var(--pink-deep)}
+.hero p{font-size:16.5px;color:#7c636c;line-height:1.6;max-width:46ch;margin:0 0 26px}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:14px;font-weight:800;font-size:15px;text-decoration:none}
+.btn.primary{background:var(--pink);color:#fff;box-shadow:0 10px 26px -10px #b7688570}
+.btn.primary:hover{background:#a75a76}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid #e9dcd8}
+.btn.ghost:hover{background:#fffaf6}
+
+/* animated block scene */
+.scene{position:relative;height:280px;display:grid;place-items:center}
+.stage{position:relative;width:220px;height:220px}
+.board-bg{position:absolute;inset:0;border-radius:22px;background:repeating-conic-gradient(#f1e5dd 0% 25%,#f6ebe4 0% 50%) 0/55px 55px;box-shadow:0 20px 44px -20px #77536030}
+.blk{position:absolute;border-radius:12px;box-shadow:inset 0 -3px 0 #ffffff33}
+.blk.b1{width:55px;height:55px;left:0;top:110px;background:#d8a3b6;animation:drop1 3.6s ease-in-out infinite}
+.blk.b2{width:55px;height:110px;left:55px;top:55px;background:#9bbbac;animation:drop2 3.6s ease-in-out infinite}
+.blk.b3{width:110px;height:55px;left:110px;top:0;background:#b2a8ce;animation:drop3 3.6s ease-in-out infinite}
+.blk.b4{width:55px;height:55px;left:165px;top:165px;background:#ddb583;animation:drop4 3.6s ease-in-out infinite}
+@keyframes drop1{0%,8%{transform:translateY(-140px);opacity:0}18%,62%{transform:translateY(0);opacity:1}78%,100%{transform:translateY(0) scale(1.15);opacity:0}}
+@keyframes drop2{0%,16%{transform:translateY(-140px);opacity:0}26%,62%{transform:translateY(0);opacity:1}78%,100%{transform:translateY(0) scale(1.15);opacity:0}}
+@keyframes drop3{0%,24%{transform:translateY(-140px);opacity:0}34%,62%{transform:translateY(0);opacity:1}78%,100%{transform:translateY(0) scale(1.15);opacity:0}}
+@keyframes drop4{0%,32%{transform:translateY(-140px);opacity:0}42%,62%{transform:translateY(0);opacity:1}78%,100%{transform:translateY(0) scale(1.15);opacity:0}}
+.sparkle{position:absolute;inset:0;pointer-events:none}
+.sparkle i{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff2c8;opacity:0;animation:spark 3.6s ease-in-out infinite}
+.sparkle i:nth-child(1){left:20%;top:70%;animation-delay:2.2s}
+.sparkle i:nth-child(2){left:55%;top:60%;animation-delay:2.32s}
+.sparkle i:nth-child(3){left:75%;top:75%;animation-delay:2.4s}
+.sparkle i:nth-child(4){left:40%;top:80%;animation-delay:2.28s}
+@keyframes spark{0%,60%{opacity:0;transform:scale(.3) translateY(0)}68%{opacity:1;transform:scale(1) translateY(-10px)}80%{opacity:0;transform:scale(.6) translateY(-30px)}100%{opacity:0}}
+
+section{max-width:1040px;margin:0 auto;padding:34px 24px}
+.section-head{text-align:center;max-width:60ch;margin:0 auto 30px}
+.section-head h2{font-size:clamp(24px,4vw,32px);margin:0 0 8px;letter-spacing:-.6px}
+.section-head p{color:#7c636c;font-size:15px;line-height:1.6}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.feature{background:#fffaf6;border:1px solid #f0e2de;border-radius:18px;padding:22px;transition:transform .25s ease,box-shadow .25s ease}
+.feature:hover{transform:translateY(-4px);box-shadow:0 18px 30px -18px #77536040}
+.feature .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;margin-bottom:12px}
+.feature h3{margin:0 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:#7c636c;line-height:1.55}
+
+.howto{background:#fffaf6;border:1px solid #f0e2de;border-radius:22px;padding:26px}
+.tabs{display:flex;gap:6px;background:#f0e3e3;padding:5px;border-radius:14px;margin-bottom:20px;max-width:420px}
+.tabs button{flex:1;padding:11px 8px;border-radius:10px;font-weight:700;font-size:13px;background:none;color:var(--muted)}
+.tabs button[aria-selected=true]{background:#fff;color:var(--pink-deep);box-shadow:0 3px 10px -4px #77536040}
+.panel{display:none}
+.panel.active{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.55}
+.steps .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--pink);color:#fff;font-weight:800;font-size:12.5px;display:grid;place-items:center}
+.steps b{color:var(--ink)}
+.howto .note{margin-top:16px;font-size:12.5px;color:#8b707c;background:#f3e9e5;border-radius:10px;padding:10px 12px}
+
+.skinflow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:760px){.skinflow{grid-template-columns:repeat(2,1fr)}}
+.skinflow div{background:#fffaf6;border:1px solid #f0e2de;border-radius:16px;padding:16px;text-align:center}
+.skinflow .n{width:30px;height:30px;border-radius:50%;background:#f1e5e4;color:var(--pink-deep);font-weight:800;display:grid;place-items:center;margin:0 auto 10px;font-size:13px}
+.skinflow p{margin:0;font-size:12.5px;color:#7c636c;line-height:1.5}
+.skinflow strong{display:block;font-size:13.5px;margin-bottom:4px}
+
+footer{text-align:center;padding:40px 24px 60px;font-size:12.5px;color:#957e84}
+footer a{color:#957e84;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<header>
+ <div class="brand"><span class="brand-mark"><i></i><i></i><i></i><i></i></span>Purrfect Blocks</div>
+ <nav><a href="#howto">Add to phone</a><a href="studio.html">Skin Studio</a></nav>
+</header>
+
+<div class="hero">
+ <div>
+  <h1>A little block puzzle, <em>dressed however you like.</em></h1>
+  <p>Clear rows and columns in a cosy 8×8 grid. Every piece can wear its own tiny character — swap in the built-in Pusheen-style skins, or design your own in the separate Skin Studio.</p>
+  <div class="cta-row">
+   <a class="btn primary" href="game.html">▶ Play now</a>
+   <a class="btn ghost" href="studio.html">✎ Open Skin Studio</a>
+  </div>
+ </div>
+ <div class="scene">
+  <div class="stage">
+   <div class="board-bg"></div>
+   <div class="blk b1"></div>
+   <div class="blk b2"></div>
+   <div class="blk b3"></div>
+   <div class="blk b4"></div>
+   <div class="sparkle"><i></i><i></i><i></i><i></i></div>
+  </div>
+ </div>
+</div>
+
+<section>
+ <div class="section-head">
+  <h2>Everything about it is meant to feel gentle</h2>
+  <p>No timer, no ads, no pressure — just a relaxing puzzle that quietly gets a little harder, and a set of tools to make it feel like yours.</p>
+ </div>
+ <div class="features">
+  <div class="feature"><div class="ico" style="background:#f2e1e7">🧩</div><h3>Relaxing puzzle</h3><p>Drag pieces onto an 8×8 board, clear full rows and columns, and chain combos for bonus points. Pieces never rotate, so every fit is fair.</p></div>
+  <div class="feature"><div class="ico" style="background:#e3ede4">🐾</div><h3>Never a broken piece</h3><p>Pieces are automatically split into straight little bodies and lone singles, redrawn fresh the instant a line clear cuts one apart — never a half-drawn fragment.</p></div>
+  <div class="feature"><div class="ico" style="background:#eae4f2">🎨</div><h3>Design your own</h3><p>The Skin Studio is a separate little app for uploading art, lining it up with a live seam preview, and exporting one ready-to-use skin file.</p></div>
+  <div class="feature"><div class="ico" style="background:#f2ece1">🎃</div><h3>Holiday surprises</h3><p>Skins can carry a start and end date. Drop a Halloween or Christmas skin in the <code>early-skins</code> folder and it appears only on schedule.</p></div>
+ </div>
+</section>
+
+<section>
+ <div class="section-head">
+  <h2>Making a skin, in short</h2>
+  <p>One export makes one complete skin, from just eight little images. The Studio lives at <code>studio.html</code>, entirely separate from the game.</p>
+ </div>
+ <div class="skinflow">
+  <div><div class="n">1</div><strong>Upload art</strong><p>Add a PNG for any of the eight part slots — as many or as few as you like.</p></div>
+  <div><div class="n">2</div><strong>Line it up</strong><p>Drag to nudge, resize with the slider, and check every shape in the live gallery.</p></div>
+  <div><div class="n">3</div><strong>Export</strong><p>Download one JSON file — art and alignment baked in together.</p></div>
+  <div><div class="n">4</div><strong>Drop it in</strong><p>Place it in <code>skins/</code> (or <code>early-skins/</code>) and list it in that folder's manifest.</p></div>
+ </div>
+</section>
+
+<section id="howto">
+ <div class="section-head">
+  <h2>Add it to your home screen</h2>
+  <p>Once this is hosted (GitHub Pages works great), it opens full-screen from your home screen like any other app.</p>
+ </div>
+ <div class="howto">
+  <div class="tabs" role="tablist">
+   <button role="tab" aria-selected="true" data-tab="ios">iPhone / iPad</button>
+   <button role="tab" aria-selected="false" data-tab="android">Android</button>
+   <button role="tab" aria-selected="false" data-tab="desktop">Desktop</button>
+  </div>
+  <div class="panel active" id="panel-ios">
+   <ol class="steps">
+    <li><span class="num">1</span><span>Open this page in <b>Safari</b> (the home-screen option only shows up there, not in Chrome on iOS).</span></li>
+    <li><span class="num">2</span><span>Tap the <b>Share</b> icon in the toolbar — the square with an arrow pointing up.</span></li>
+    <li><span class="num">3</span><span>Scroll down and tap <b>Add to Home Screen</b>.</span></li>
+    <li><span class="num">4</span><span>Confirm the name and tap <b>Add</b>. A little icon appears on your home screen and opens full-screen, no browser bar.</span></li>
+   </ol>
+  </div>
+  <div class="panel" id="panel-android">
+   <ol class="steps">
+    <li><span class="num">1</span><span>Open this page in <b>Chrome</b>.</span></li>
+    <li><span class="num">2</span><span>Tap the <b>⋮</b> menu in the top right.</span></li>
+    <li><span class="num">3</span><span>Tap <b>Add to Home screen</b>, then <b>Install</b>.</span></li>
+    <li><span class="num">4</span><span>The icon lands on your home screen and launches like a normal app.</span></li>
+   </ol>
+  </div>
+  <div class="panel" id="panel-desktop">
+   <ol class="steps">
+    <li><span class="num">1</span><span>Open this page in <b>Chrome</b> or <b>Edge</b>.</span></li>
+    <li><span class="num">2</span><span>Click the install icon in the address bar (or the <b>⋮</b> menu → <b>Install Purrfect Blocks…</b>).</span></li>
+    <li><span class="num">3</span><span>It opens in its own window from now on, with its own taskbar/dock icon.</span></li>
+   </ol>
+  </div>
+  <p class="note">Tip: bookmark or install the <b>game</b> page (<code>game.html</code>) itself for the fastest way in — this page is just the front door.</p>
+ </div>
+</section>
+
+<footer>
+ Purrfect Blocks — a free, ad-free little puzzle. Host this folder anywhere static, GitHub Pages included.<br>
+ <a href="game.html">Play</a> · <a href="studio.html">Skin Studio</a>
+</footer>
+
+<script>
+const tabs=document.querySelectorAll('.tabs [role=tab]');
+tabs.forEach(btn=>btn.addEventListener('click',()=>{
+ tabs.forEach(b=>b.setAttribute('aria-selected','false'));
+ btn.setAttribute('aria-selected','true');
+ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+ document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+}));
+// best-effort OS auto-select
+const ua=navigator.userAgent||'';
+const guess=/iphone|ipad|ipod/i.test(ua)?'ios':/android/i.test(ua)?'android':null;
+if(guess){const btn=document.querySelector(`.tabs [data-tab=${guess}]`);if(btn)btn.click();}
+</script>
+</body>
+</html>
